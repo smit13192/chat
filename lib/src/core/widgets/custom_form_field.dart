@@ -18,6 +18,7 @@ class CustomFormField extends StatelessWidget {
   final bool? enabled;
   final FocusNode? focusNode;
   final TextCapitalization textCapitalization;
+  final BoxConstraints? suffixIconConstraints;
   final void Function(String value)? onSubmitted;
 
   const CustomFormField({
@@ -37,17 +38,18 @@ class CustomFormField extends StatelessWidget {
     this.enabled,
     this.focusNode,
     this.textCapitalization = TextCapitalization.none,
+    this.suffixIconConstraints,
     this.onSubmitted,
   });
 
   @override
   Widget build(BuildContext context) {
     return TextFormField(
-      focusNode: focusNode,
       enabled: enabled,
       readOnly: readOnly,
       onTap: onTap,
       controller: controller,
+      focusNode: focusNode,
       validator: validator,
       obscureText: obscureText,
       keyboardType: keyboardType,
@@ -66,6 +68,7 @@ class CustomFormField extends StatelessWidget {
         focusedBorder: getInputBorder(),
         errorBorder:
             getInputBorder(borderColor: AppColor.redColor.withOpacity(0.70)),
+            suffixIconConstraints: suffixIconConstraints,
         errorStyle: TextStyle(
           color: AppColor.redColor.withOpacity(0.70),
           fontSize: 10.sp,

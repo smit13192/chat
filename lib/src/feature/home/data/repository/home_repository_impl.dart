@@ -62,6 +62,7 @@ class HomeRepositoryImpl implements HomeRepository {
   Future<DataState<ChatMessageEntity>> getAllChatMessage({
     required String chatId,
     String? lastMessageId,
+    String? firstMessageId,
     int? skip,
     int? limit,
   }) async {
@@ -69,6 +70,7 @@ class HomeRepositoryImpl implements HomeRepository {
       final response = await _apiHomeDataSource.getAllChatMessage(
         chatId: chatId,
         lastMessageId: lastMessageId,
+        firstMessageId: firstMessageId,
         skip: skip,
         limit: limit,
       );

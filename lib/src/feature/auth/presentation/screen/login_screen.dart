@@ -1,5 +1,5 @@
-
 import 'package:chat/src/config/constant/app_color.dart';
+import 'package:chat/src/config/constant/app_string.dart';
 import 'package:chat/src/config/router/router.dart';
 import 'package:chat/src/core/utils/validator.dart';
 import 'package:chat/src/core/widgets/custom_button.dart';
@@ -51,12 +51,14 @@ class _LoginScreenState extends State<LoginScreen> {
               CustomFormField(
                 controller: emailController,
                 hintText: 'Enter email',
+                keyboardType: TextInputType.emailAddress,
                 validator: (value) => Validator.validateEmail(value ?? ''),
               ),
               GapH(2.h),
               CustomFormField(
                 controller: passwordController,
                 hintText: 'Enter password',
+                keyboardType: TextInputType.visiblePassword,
                 validator: (value) => Validator.validatePassword(value ?? ''),
                 obscureText: true,
               ),
@@ -75,7 +77,10 @@ class _LoginScreenState extends State<LoginScreen> {
           child: RichText(
             text: TextSpan(
               text: 'Don\'t have an account? ',
-              style: TextStyle(color: AppColor.whiteColor.withOpacity(0.70)),
+              style: TextStyle(
+                color: AppColor.whiteColor.withOpacity(0.70),
+                fontFamily: AppString.fontFamily,
+              ),
               children: [
                 TextSpan(
                   text: 'Register',

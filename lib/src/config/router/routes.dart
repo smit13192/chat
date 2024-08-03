@@ -7,5 +7,5 @@ abstract class Routes {
   static const String register = '/register';
   static const String home = '/home';
   static const String chat = '/chat';
-  static const String getAllUserChat = '/get-all-user-chat';
+  static const String getAllUser = '/get-all-user-chat';
 }

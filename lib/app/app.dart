@@ -3,7 +3,6 @@ import 'package:chat/src/config/constant/app_color.dart';
 import 'package:chat/src/config/constant/app_string.dart';
 import 'package:chat/src/config/router/router.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:sizer/sizer.dart';
 
 class App extends StatelessWidget {
@@ -21,8 +20,7 @@ class App extends StatelessWidget {
               physics: const ClampingScrollPhysics(),
             ),
             theme: ThemeData(
-              fontFamily: GoogleFonts.lato().fontFamily,
-              textTheme: GoogleFonts.latoTextTheme(),
+              fontFamily: AppString.fontFamily,
               scaffoldBackgroundColor: AppColor.scaffoldColor,
               useMaterial3: false,
               primaryColor: AppColor.primaryColor,

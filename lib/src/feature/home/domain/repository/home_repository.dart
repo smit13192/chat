@@ -21,6 +21,7 @@ abstract interface class HomeRepository {
   Future<DataState<ChatMessageEntity>> getAllChatMessage({
     required String chatId,
     String? lastMessageId,
+    String? firstMessageId,
     int? skip,
     int? limit,
   });

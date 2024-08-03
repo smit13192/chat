@@ -1,9 +1,8 @@
-
 import 'package:chat/src/core/screens/no_page_found_screen.dart';
 import 'package:chat/src/feature/auth/presentation/screen/login_screen.dart';
 import 'package:chat/src/feature/auth/presentation/screen/register_screen.dart';
 import 'package:chat/src/feature/home/presentation/screen/chat_screen.dart';
-import 'package:chat/src/feature/home/presentation/screen/get_all_user_chat_screen.dart';
+import 'package:chat/src/feature/home/presentation/screen/get_all_user_screen.dart';
 import 'package:chat/src/feature/home/presentation/screen/home_screen.dart';
 import 'package:chat/src/feature/splash/splash_screen.dart';
 import 'package:flutter/material.dart';
@@ -54,8 +53,8 @@ abstract class AppRouter {
       builder: (arguments) => const RegisterScreen(),
     ),
     RouteModel(
-      name: Routes.home,
-      builder: (arguments) => const HomeScreen(),
+      name: Routes.getAllUser,
+      builder: (arguments) => const GetAllUserScreen(),
     ),
     RouteModel(
       name: Routes.chat,
@@ -63,8 +62,8 @@ abstract class AppRouter {
           ChatScreen(params: (arguments as ChatScreenParmas)),
     ),
     RouteModel(
-      name: Routes.getAllUserChat,
-      builder: (arguments) => const GetAllUserChatScreen(),
+      name: Routes.home,
+      builder: (arguments) => const HomeScreen(),
     ),
   ];
 }

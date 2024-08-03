@@ -1,17 +1,17 @@
-
 import 'package:chat/locator.dart';
+import 'package:chat/src/api/endpoints.dart';
 import 'package:chat/src/config/constant/app_color.dart';
 import 'package:chat/src/config/constant/app_string.dart';
-import 'package:chat/src/config/constant/assets.dart';
 import 'package:chat/src/config/router/router.dart';
+import 'package:chat/src/core/database/storage.dart';
 import 'package:chat/src/core/utils/formz_status.dart';
+import 'package:chat/src/core/widgets/custom_image.dart';
 import 'package:chat/src/core/widgets/custom_text.dart';
-import 'package:chat/src/core/widgets/gap.dart';
-import 'package:chat/src/feature/auth/domain/entity/login_entity.dart';
+import 'package:chat/src/feature/home/domain/entity/chat_entity.dart';
 import 'package:chat/src/feature/home/presentation/provider/chat_provider.dart';
 import 'package:chat/src/feature/home/presentation/provider/home_provider.dart';
+import 'package:chat/src/feature/home/presentation/screen/chat_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:lazy_load_scrollview/lazy_load_scrollview.dart';
 import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
 
@@ -22,8 +22,8 @@ class HomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider.value(value: locator<HomeProvider>()),
         ChangeNotifierProvider.value(value: locator<ChatProvider>()),
+        ChangeNotifierProvider.value(value: locator<HomeProvider>()),
       ],
       child: const HomeView(),
     );
@@ -42,7 +42,7 @@ class _HomeViewState extends State<HomeView> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<HomeProvider>().getAllUser(isFromMain: true);
+      context.read<ChatProvider>().getAllUserChat(checkIsEmpty: true);
       context.read<HomeProvider>().emitActiveUser();
       context.read<ChatProvider>().listenNewMessage();
       context.read<ChatProvider>().listenDeleteMessage();
@@ -53,105 +53,90 @@ class _HomeViewState extends State<HomeView> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         backgroundColor: AppColor.whiteColor.withOpacity(0.15),
         elevation: 0,
         title: CustomText(
           AppString.appName,
           fontSize: 17.sp,
         ),
-        actions: [
-          GestureDetector(
-            onTap: () => Navigator.pushNamed(context, Routes.getAllUserChat),
-            child: SizedBox(
-              height: 2.5.h,
-              width: 2.5.h,
-              child: Image.asset(
-                Assets.assetsIconsChat,
-                color: AppColor.whiteColor,
-              ),
-            ),
-          ),
-          GapW(5.w),
-        ],
       ),
       body: Builder(
         builder: (context) {
-          final status = context
-              .select<HomeProvider, FormzStatus>((value) => value.status);
+          final status = context.select<ChatProvider, FormzStatus>(
+            (value) => value.getAllChatStatus,
+          );
           switch (status) {
             case FormzStatus.loading:
               return const Center(child: CircularProgressIndicator());
             case FormzStatus.success:
-              return const AllUserView();
+              return const GetAllChatView();
             default:
               return const SizedBox.shrink();
           }
         },
       ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => Navigator.pushNamed(context, Routes.getAllUser),
+        child: Icon(Icons.person, size: 23.sp),
+      ),
     );
   }
 }
 
-class AllUserView extends StatelessWidget {
-  const AllUserView({super.key});
+class GetAllChatView extends StatelessWidget {
+  const GetAllChatView({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final homeProvider = context.watch<HomeProvider>();
-    final users = homeProvider.users;
-    final activeUser = homeProvider.activeUser;
-    final isDataOver = homeProvider.isDataOver;
-    return LazyLoadScrollView(
-      onEndOfPage: () => context.read<HomeProvider>().getAllUser(),
+    final chats = context.select<ChatProvider, List<ChatEntity>>(
+      (value) => value.chatList,
+    );
+
+    if (chats.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    String? userId = Storage.instance.getId();
+
+    return RefreshIndicator(
+      onRefresh: () async => await _onRefresh(context),
       child: ListView.builder(
-        itemCount: (users.length + (isDataOver ? 0 : 1)),
-        itemBuilder: (context, index) {
-          if (index == users.length) {
-            return const Center(child: CircularProgressIndicator());
-          }
-
-          final user = users[index];
-
+        itemCount: chats.length,
+        itemBuilder: (BuildContext context, int index) {
+          final chat = chats[index];
+          final recieverUserIndex =
+              chat.users.indexWhere((element) => element.userId != userId);
+          String chatName = chat.isGroupChat
+              ? chat.chatName!
+              : recieverUserIndex == -1
+                  ? 'No User Found'
+                  : chat.users[recieverUserIndex].username;
+          String image = chat.isGroupChat
+              ? chat.groupImage
+              : recieverUserIndex == -1
+                  ? chat.groupImage
+                  : chat.users[recieverUserIndex].image;
           return ListTile(
-            onTap: () => _onUserTap(context, user),
-            leading: Stack(
-              children: [
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(2.5.h),
-                  child: SizedBox(
-                    height: 5.h,
-                    width: 5.h,
-                    child: Image.network(
-                      user.image,
-                      fit: BoxFit.cover,
-                    ),
-                  ),
-                ),
-                if (activeUser.contains(user.userId))
-                  Positioned(
-                    bottom: 0,
-                    right: 0,
-                    child: Transform.translate(
-                      offset: const Offset(7, 1),
-                      child: Container(
-                        height: 2.h,
-                        width: 2.h,
-                        decoration: const BoxDecoration(
-                          color: AppColor.greenColor,
-                          shape: BoxShape.circle,
-                        ),
-                      ),
-                    ),
-                  ),
-              ],
+            onTap: () => _onChatTap(context, chat),
+            leading: ClipRRect(
+              borderRadius: BorderRadius.circular(2.5.h),
+              child: SizedBox(
+                height: 5.h,
+                width: 5.h,
+                child: CustomImage(image.toApiImage()),
+              ),
             ),
             title: CustomText(
-              user.username,
+              chatName,
               color: AppColor.whiteColor,
               fontSize: 13.sp,
             ),
             subtitle: CustomText(
-              user.email,
+              chat.lastMessage?.message ??
+                  'Hello! Feel free to start the conversation.',
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
               color: AppColor.whiteColor.withOpacity(0.70),
             ),
           );
@@ -160,7 +145,15 @@ class AllUserView extends StatelessWidget {
     );
   }
 
-  void _onUserTap(BuildContext context, UserEntity user) {
-    context.read<HomeProvider>().accessChat(context, recieverId: user.userId);
+  void _onChatTap(BuildContext context, ChatEntity chat) {
+    Navigator.pushNamed(
+      context,
+      Routes.chat,
+      arguments: ChatScreenParmas(chatEnity: chat),
+    );
+  }
+
+  Future<void> _onRefresh(BuildContext context) async {
+    await context.read<ChatProvider>().getAllUserChat();
   }
 }

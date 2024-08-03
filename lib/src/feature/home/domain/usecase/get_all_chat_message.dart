@@ -18,6 +18,7 @@ class GetAllChatMessageUseCase
     return _homeRepository.getAllChatMessage(
       chatId: params.chatId,
       lastMessageId: params.lastMessageId,
+      firstMessageId: params.firstMessageId,
       skip: params.skip,
       limit: params.limit,
     );
@@ -27,12 +28,14 @@ class GetAllChatMessageUseCase
 class GetAllChatMessageParams {
   String chatId;
   String? lastMessageId;
+  String? firstMessageId;
   int? skip;
   int? limit;
 
   GetAllChatMessageParams({
     required this.chatId,
     this.lastMessageId,
+    this.firstMessageId,
     this.skip,
     this.limit,
   });

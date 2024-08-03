@@ -26,6 +26,8 @@ dependencies:
   socket_io_client: ^2.0.3+1
   connectivity_plus: ^6.0.4
   intl: ^0.19.0
+  cached_network_image: ^3.4.0
+  shimmer: ^3.0.0
 
 flutter_assets:
   assets_path: assets/
@@ -44,12 +46,13 @@ flutter:
   assets:
     - assets/icons/
     - assets/images/
+    - fonts/
 
   # example:
-  # fonts:
-  #   - family: Schyler
-  #     fonts:
-  #       - asset: fonts/Schyler-Regular.ttf
+  fonts:
+    - family: JetBrains Mono
+      fonts:
+        - asset: fonts/font.ttf
   #       - asset: fonts/Schyler-Italic.ttf
   #         style: italic
   #   - family: Trajan Pro

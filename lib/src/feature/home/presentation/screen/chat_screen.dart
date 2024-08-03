@@ -1,9 +1,11 @@
 import 'package:chat/locator.dart';
+import 'package:chat/src/api/endpoints.dart';
 import 'package:chat/src/config/constant/app_color.dart';
 import 'package:chat/src/core/database/storage.dart';
 import 'package:chat/src/core/extension/datetime_extension.dart';
 import 'package:chat/src/core/utils/formz_status.dart';
 import 'package:chat/src/core/widgets/custom_form_field.dart';
+import 'package:chat/src/core/widgets/custom_image.dart';
 import 'package:chat/src/core/widgets/custom_text.dart';
 import 'package:chat/src/core/widgets/gap.dart';
 import 'package:chat/src/feature/home/domain/entity/chat_entity.dart';
@@ -105,10 +107,7 @@ class _ChatViewState extends State<ChatView> {
                       child: SizedBox(
                         height: 5.h,
                         width: 5.h,
-                        child: Image.network(
-                          image,
-                          fit: BoxFit.cover,
-                        ),
+                        child: CustomImage(image.toApiImage()),
                       ),
                     ),
                     title: CustomText(
@@ -160,15 +159,26 @@ class _ChatViewState extends State<ChatView> {
               hintText: 'Enter message',
               onSubmitted: (value) =>
                   _onFieldSubmit(context, value, widget.chatEntity.chatId),
+              suffixIconConstraints: const BoxConstraints(),
               suffixIcon: GestureDetector(
                 onTap: () => _onFieldSubmit(
                   context,
-                  messageController.text.trim(),
+                  messageController.text,
                   widget.chatEntity.chatId,
                 ),
-                child: Icon(
-                  Icons.send,
-                  color: AppColor.whiteColor.withOpacity(0.5),
+                child: Container(
+                  margin: EdgeInsets.only(right: 2.w, top: 5, bottom: 5),
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 10, horizontal: 15),
+                  decoration: BoxDecoration(
+                    color: AppColor.primaryColor,
+                    borderRadius: BorderRadius.circular(7),
+                  ),
+                  child: Icon(
+                    Icons.send,
+                    color: AppColor.whiteColor,
+                    size: 15.sp,
+                  ),
                 ),
               ),
             ),
@@ -196,7 +206,7 @@ class MessageBuild extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final chats =
-        context.watch<ChatProvider>().chatData[chatId]?.messages ?? {};
+        context.watch<ChatProvider>().chatData[chatId]?.allMessages ?? {};
     return LazyLoadScrollView(
       onEndOfPage: () => _onPageOver(context, chatId),
       child: ListView.builder(
@@ -298,6 +308,6 @@ class MessageBuild extends StatelessWidget {
   }
 
   void _onPageOver(BuildContext context, String chatId) {
-    context.read<ChatProvider>().getChatMessage(chatId, isFromMain: false);
+    context.read<ChatProvider>().getChatMessage(chatId);
   }
 }

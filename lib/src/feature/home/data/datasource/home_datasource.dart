@@ -75,6 +75,7 @@ class ApiHomeDataSource {
   Future<ChatMessageModel> getAllChatMessage({
     required String chatId,
     String? lastMessageId,
+    String? firstMessageId,
     int? skip,
     int? limit,
   }) async {
@@ -82,6 +83,7 @@ class ApiHomeDataSource {
       '${Endpoints.getAllChatMessage}/$chatId',
       queryParameters: {
         'lastMessageId': lastMessageId ?? '',
+        'firstMessageId': firstMessageId ?? '',
         'skip': skip ?? '',
         'limit': limit ?? '',
       },

@@ -72,13 +72,16 @@ class ChatProvider extends ChangeNotifier {
 
   Future<void> getChatMessage(String chatId, {bool isFromMain = false}) async {
     int limit = 100;
-    if (isFromMain) {
-      chatData.remove(chatId);
-    }
-    final data = chatData[chatId];
-    if (data?.isDataOver ?? false) return;
     String? lastMessageId;
-    if (data != null) {
+    String? firstMessageId;
+    ChatMessageEntity? data = chatData[chatId];
+
+    if (isFromMain && data != null && data.messages.isNotEmpty) {
+      firstMessageId = data.messages.first.messageId;
+    }
+
+    if ((data?.isDataOver ?? false) && !isFromMain) return;
+    if (data != null && !isFromMain) {
       lastMessageId =
           data.messages.isNotEmpty ? data.messages.last.messageId : null;
     }
@@ -87,6 +90,7 @@ class ChatProvider extends ChangeNotifier {
       GetAllChatMessageParams(
         chatId: chatId,
         lastMessageId: lastMessageId,
+        firstMessageId: firstMessageId,
         limit: limit,
       ),
     );
@@ -103,8 +107,14 @@ class ChatProvider extends ChangeNotifier {
     }
     chatData[chatId] = data.copyWith(
       chat: result.data.chat,
-      messages: {...data.messages, ...result.data.messages},
-      isDataOver: result.data.messages.length < limit ? true : false,
+      messages: result.data.isLast
+          ? {...data.messages, ...result.data.messages}
+          : {...result.data.messages, ...data.messages},
+      isDataOver: result.data.isLast
+          ? result.data.messages.length < limit
+              ? true
+              : false
+          : data.isDataOver,
     );
     status = FormzStatus.success;
   }
@@ -130,7 +140,7 @@ class ChatProvider extends ChangeNotifier {
           final chatMessage = chatData[chatId];
           if (chatMessage == null) return;
           chatData[chatId] = chatMessage.copyWith(
-            messages: {message, ...chatMessage.messages},
+            liveChatMessage: {message, ...chatMessage.liveChatMessage},
           );
           changeLastSendMessage(message);
           notifyListeners();
@@ -160,9 +170,16 @@ class ChatProvider extends ChangeNotifier {
           final chatId = message.chat;
           final chatMessage = chatData[chatId];
           if (chatMessage == null) return;
-          chatMessage.messages.remove(message);
-          chatData[chatId] =
-              chatMessage.copyWith(chat: chat, messages: chatMessage.messages);
+          Set<MessageEntity> messages = Set.of(chatMessage.messages);
+          Set<MessageEntity> liveChatMessage =
+              Set.of(chatMessage.liveChatMessage);
+          messages.remove(message);
+          liveChatMessage.remove(message);
+          chatData[chatId] = chatMessage.copyWith(
+            chat: chat,
+            messages: messages,
+            liveChatMessage: liveChatMessage,
+          );
           changeLastSendMessage(chat.lastMessage, chatId: chatId);
           notifyListeners();
         },

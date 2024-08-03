@@ -1,5 +1,5 @@
-
 import 'package:chat/src/config/constant/app_color.dart';
+import 'package:chat/src/config/constant/app_string.dart';
 import 'package:chat/src/core/utils/validator.dart';
 import 'package:chat/src/core/widgets/custom_button.dart';
 import 'package:chat/src/core/widgets/custom_form_field.dart';
@@ -52,18 +52,21 @@ class _RegisterScreenState extends State<RegisterScreen> {
               CustomFormField(
                 controller: usernameController,
                 hintText: 'Enter username',
+                keyboardType: TextInputType.name,
                 validator: (value) => Validator.validateUsername(value ?? ''),
               ),
               GapH(2.h),
               CustomFormField(
                 controller: emailController,
                 hintText: 'Enter email',
+                keyboardType: TextInputType.emailAddress,
                 validator: (value) => Validator.validateEmail(value ?? ''),
               ),
               GapH(2.h),
               CustomFormField(
                 controller: passwordController,
                 hintText: 'Enter password',
+                keyboardType: TextInputType.visiblePassword,
                 validator: (value) => Validator.validatePassword(value ?? ''),
                 obscureText: true,
               ),
@@ -82,7 +85,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
           child: RichText(
             text: TextSpan(
               text: 'Already have an account? ',
-              style: TextStyle(color: AppColor.whiteColor.withOpacity(0.70)),
+              style: TextStyle(
+                color: AppColor.whiteColor.withOpacity(0.70),
+                fontFamily: AppString.fontFamily,
+              ),
               children: [
                 TextSpan(
                   text: 'Sign In',
