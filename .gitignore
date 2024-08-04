@@ -140,3 +140,4 @@ app.*.symbols
 # FVM Version Cache
 .fvm/
 .vscode/
+env/
