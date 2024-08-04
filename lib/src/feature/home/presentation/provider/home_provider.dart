@@ -43,7 +43,12 @@ class HomeProvider extends ChangeNotifier {
         },
       ),
     );
-    SocketService.instance.emit('send-user-id', Storage.instance.getId());
+    SocketService.instance.addEmitter(
+      SocketEmitter(
+        event: 'send-user-id',
+        callBack: () => Storage.instance.getId() ?? '',
+      ),
+    );
   }
 
   Future<void> getAllUser({
