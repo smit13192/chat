@@ -9,6 +9,7 @@ class CustomFormField extends StatelessWidget {
   final void Function()? onTap;
   final double borderRadius;
   final String? hintText;
+  final String? initialValue;
   final Widget? prefixIcon;
   final Widget? suffixIcon;
   final bool obscureText;
@@ -29,6 +30,7 @@ class CustomFormField extends StatelessWidget {
     this.onTap,
     this.borderRadius = 8,
     this.hintText,
+    this.initialValue,
     this.prefixIcon,
     this.suffixIcon,
     this.obscureText = false,
@@ -45,6 +47,7 @@ class CustomFormField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return TextFormField(
+      initialValue: initialValue,
       enabled: enabled,
       readOnly: readOnly,
       onTap: onTap,
@@ -68,7 +71,7 @@ class CustomFormField extends StatelessWidget {
         focusedBorder: getInputBorder(),
         errorBorder:
             getInputBorder(borderColor: AppColor.redColor.withOpacity(0.70)),
-            suffixIconConstraints: suffixIconConstraints,
+        suffixIconConstraints: suffixIconConstraints,
         errorStyle: TextStyle(
           color: AppColor.redColor.withOpacity(0.70),
           fontSize: 10.sp,

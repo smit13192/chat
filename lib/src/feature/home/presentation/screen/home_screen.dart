@@ -1,7 +1,6 @@
 import 'package:chat/locator.dart';
 import 'package:chat/src/api/endpoints.dart';
 import 'package:chat/src/config/constant/app_color.dart';
-import 'package:chat/src/config/constant/app_string.dart';
 import 'package:chat/src/config/router/router.dart';
 import 'package:chat/src/core/database/storage.dart';
 import 'package:chat/src/core/utils/formz_status.dart';
@@ -52,15 +51,6 @@ class _HomeViewState extends State<HomeView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        backgroundColor: AppColor.whiteColor.withOpacity(0.15),
-        elevation: 0,
-        title: CustomText(
-          AppString.appName,
-          fontSize: 17.sp,
-        ),
-      ),
       body: Builder(
         builder: (context) {
           final status = context.select<ChatProvider, FormzStatus>(
@@ -75,10 +65,6 @@ class _HomeViewState extends State<HomeView> {
               return const SizedBox.shrink();
           }
         },
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => Navigator.pushNamed(context, Routes.getAllUser),
-        child: Icon(Icons.person, size: 23.sp),
       ),
     );
   }

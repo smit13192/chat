@@ -10,6 +10,7 @@ class CustomButton extends StatelessWidget {
   final double? width;
   final double elevation;
   final BorderRadius? borderRadius;
+  final Border? border;
   final EdgeInsets? padding;
   final TextStyle? textStyle;
 
@@ -22,6 +23,7 @@ class CustomButton extends StatelessWidget {
     this.width,
     this.elevation = 3,
     this.borderRadius,
+    this.border,
     this.textStyle,
     this.padding,
   });
@@ -42,6 +44,10 @@ class CustomButton extends StatelessWidget {
           padding: padding,
           height: height,
           width: width,
+          decoration: BoxDecoration(
+            border: border,
+            borderRadius: borderRadius ?? BorderRadius.circular(8),
+          ),
           alignment: Alignment.center,
           child: Text(
             text,

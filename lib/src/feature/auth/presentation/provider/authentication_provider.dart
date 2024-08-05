@@ -1,4 +1,3 @@
-
 import 'package:chat/src/config/router/router.dart';
 import 'package:chat/src/core/database/storage.dart';
 import 'package:chat/src/core/extension/context_extension.dart';
@@ -42,7 +41,7 @@ class AuthenticationProvider extends ChangeNotifier {
     }
     user = result.data;
     navigatorState.pushNamedAndRemoveUntil(
-      Routes.home,
+      Routes.dashboard,
       (route) => false,
     );
   }
@@ -71,7 +70,7 @@ class AuthenticationProvider extends ChangeNotifier {
     ]);
     if (!context.mounted) return;
     context.showSuccessSnackBar('User logged in successfully');
-    navigatorState.pushNamedAndRemoveUntil(Routes.home, (route) => false);
+    navigatorState.pushNamedAndRemoveUntil(Routes.dashboard, (route) => false);
   }
 
   Future<void> register(

@@ -44,14 +44,6 @@ class _GetAllUserViewState extends State<GetAllUserView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: AppColor.whiteColor.withOpacity(0.15),
-        elevation: 0,
-        title: CustomText(
-          'Users',
-          fontSize: 17.sp,
-        ),
-      ),
       body: Builder(
         builder: (context) {
           final status = context
