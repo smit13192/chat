@@ -87,6 +87,7 @@ class GetAllChatView extends StatelessWidget {
 
     return RefreshIndicator(
       onRefresh: () async => await _onRefresh(context),
+      backgroundColor: AppColor.blackColor,
       child: ListView.builder(
         itemCount: chats.length,
         itemBuilder: (BuildContext context, int index) {

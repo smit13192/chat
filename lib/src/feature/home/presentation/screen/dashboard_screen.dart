@@ -1,3 +1,4 @@
+import 'package:chat/main.dart';
 import 'package:chat/src/config/constant/app_color.dart';
 import 'package:chat/src/config/constant/app_string.dart';
 import 'package:chat/src/core/widgets/custom_text.dart';
@@ -55,6 +56,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         backgroundColor: AppColor.whiteColor.withOpacity(0.15),
         elevation: 0,
         centerTitle: true,
+        systemOverlayStyle: systemOverlayStyle,
         title: CustomText(
           AppString.appName,
           fontSize: 20.sp,

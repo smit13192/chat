@@ -73,56 +73,61 @@ class AllUserView extends StatelessWidget {
     final isDataOver = homeProvider.isDataOver;
     return LazyLoadScrollView(
       onEndOfPage: () => context.read<HomeProvider>().getAllUser(),
-      child: ListView.builder(
-        itemCount: (users.length + (isDataOver ? 0 : 1)),
-        itemBuilder: (context, index) {
-          if (index == users.length) {
-            return const Center(child: CircularProgressIndicator());
-          }
+      child: RefreshIndicator(
+        onRefresh: () =>
+            context.read<HomeProvider>().getAllUser(isFromMain: true),
+        backgroundColor: AppColor.blackColor,
+        child: ListView.builder(
+          itemCount: (users.length + (isDataOver ? 0 : 1)),
+          itemBuilder: (context, index) {
+            if (index == users.length) {
+              return const Center(child: CircularProgressIndicator());
+            }
 
-          final user = users[index];
+            final user = users[index];
 
-          return ListTile(
-            onTap: () => _onUserTap(context, user),
-            leading: Stack(
-              children: [
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(2.5.h),
-                  child: SizedBox(
-                    height: 5.h,
-                    width: 5.h,
-                    child: CustomImage(user.image.toApiImage()),
+            return ListTile(
+              onTap: () => _onUserTap(context, user),
+              leading: Stack(
+                children: [
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(2.5.h),
+                    child: SizedBox(
+                      height: 5.h,
+                      width: 5.h,
+                      child: CustomImage(user.image.toApiImage()),
+                    ),
                   ),
-                ),
-                if (activeUser.contains(user.userId))
-                  Positioned(
-                    bottom: 0,
-                    right: 0,
-                    child: Transform.translate(
-                      offset: const Offset(7, 1),
-                      child: Container(
-                        height: 2.h,
-                        width: 2.h,
-                        decoration: const BoxDecoration(
-                          color: AppColor.greenColor,
-                          shape: BoxShape.circle,
+                  if (activeUser.contains(user.userId))
+                    Positioned(
+                      bottom: 0,
+                      right: 0,
+                      child: Transform.translate(
+                        offset: const Offset(7, 1),
+                        child: Container(
+                          height: 2.h,
+                          width: 2.h,
+                          decoration: const BoxDecoration(
+                            color: AppColor.greenColor,
+                            shape: BoxShape.circle,
+                          ),
                         ),
                       ),
                     ),
-                  ),
-              ],
-            ),
-            title: CustomText(
-              user.username,
-              color: AppColor.whiteColor,
-              fontSize: 13.sp,
-            ),
-            subtitle: CustomText(
-              user.email,
-              color: AppColor.whiteColor.withOpacity(0.70),
-            ),
-          );
-        },
+                ],
+              ),
+              title: CustomText(
+                user.username,
+                color: AppColor.whiteColor,
+                fontSize: 13.sp,
+              ),
+              subtitle: CustomText(
+                user.email,
+                color: AppColor.whiteColor.withOpacity(0.70),
+              ),
+            );
+          },
+        ),
       ),
     );
   }

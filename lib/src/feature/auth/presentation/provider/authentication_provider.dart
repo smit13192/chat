@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:chat/src/config/router/router.dart';
 import 'package:chat/src/core/database/storage.dart';
 import 'package:chat/src/core/extension/context_extension.dart';
@@ -6,20 +8,24 @@ import 'package:chat/src/feature/auth/domain/entity/login_entity.dart';
 import 'package:chat/src/feature/auth/domain/usecase/login_usecase.dart';
 import 'package:chat/src/feature/auth/domain/usecase/profile_usecase.dart';
 import 'package:chat/src/feature/auth/domain/usecase/register_usecase.dart';
+import 'package:chat/src/feature/auth/domain/usecase/update_profile_usecase.dart';
 import 'package:flutter/material.dart';
 
 class AuthenticationProvider extends ChangeNotifier {
   LoginUseCase loginUseCase;
   RegisterUseCase registerUseCase;
   ProfileUseCase profileUseCase;
+  UpdateProfileUseCase updateProfileUseCase;
 
   AuthenticationProvider({
     required this.loginUseCase,
     required this.registerUseCase,
     required this.profileUseCase,
+    required this.updateProfileUseCase,
   });
 
   UserEntity? user;
+  File? updatedImage;
 
   Future<void> checkIsLogin(BuildContext context) async {
     String? token = Storage.instance.getToken();
@@ -95,5 +101,38 @@ class AuthenticationProvider extends ChangeNotifier {
     if (!context.mounted) return;
     context.showSuccessSnackBar(result.data);
     navigatorState.pushNamedAndRemoveUntil(Routes.login, (route) => false);
+  }
+
+  Future<void> getUserProfile() async {
+    final result = await profileUseCase();
+    if (result.isFailure) return;
+    user = result.data;
+    notifyListeners();
+  }
+
+  void onUpdateImage(File? image) {
+    updatedImage = image;
+    notifyListeners();
+  }
+
+  Future<void> updateUser(
+    BuildContext context, {
+    required String username,
+  }) async {
+    ScreenLoadingController.instance.show(context);
+    final result = await updateProfileUseCase(
+      UpdateProfileParams(username: username, image: updatedImage?.path),
+    );
+    ScreenLoadingController.instance.hide();
+    if (result.isFailure) {
+      if (!context.mounted) return;
+      context.showErrorSnackBar(result.failure.message);
+      return;
+    }
+
+    user = result.data;
+    notifyListeners();
+    if (!context.mounted) return;
+    context.showSuccessSnackBar('User profile updated successfully');
   }
 }

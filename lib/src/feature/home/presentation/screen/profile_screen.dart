@@ -23,59 +23,67 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final authenticationProvider = context.watch<AuthenticationProvider>();
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 4.w),
-      child: Column(
-        children: [
-          GapH(2.h),
-          SizedBox(
-            height: 24.w,
-            child: Row(
-              children: [
-                SizedBox(
-                  height: 24.w,
-                  width: 24.w,
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(12.5.w),
-                    child: CustomImage(
-                      authenticationProvider.user!.image.toApiImage(),
+      child: RefreshIndicator(
+        backgroundColor: AppColor.blackColor,
+        onRefresh: () =>
+            context.read<AuthenticationProvider>().getUserProfile(),
+        child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          child: Column(
+            children: [
+              GapH(2.h),
+              SizedBox(
+                height: 24.w,
+                child: Row(
+                  children: [
+                    SizedBox(
+                      height: 24.w,
+                      width: 24.w,
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(12.5.w),
+                        child: CustomImage(
+                          authenticationProvider.user!.image.toApiImage(),
+                        ),
+                      ),
                     ),
-                  ),
+                    GapW(5.w),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Spacer(),
+                          CustomText(
+                            authenticationProvider.user!.username,
+                            color: AppColor.whiteColor,
+                            fontSize: 13.sp,
+                          ),
+                          CustomText(
+                            authenticationProvider.user!.email,
+                            color: AppColor.whiteColor.withOpacity(0.50),
+                          ),
+                          const Spacer(),
+                          CustomButton(
+                            onPressed: () => _onEditProfileTap(context),
+                            text: 'Edit Profile',
+                            height: 30,
+                            buttonColor: AppColor.transparent,
+                            textStyle: TextStyle(
+                              fontSize: 10.sp,
+                              color: AppColor.whiteColor.withOpacity(0.50),
+                            ),
+                            border: Border.all(
+                              color: AppColor.whiteColor.withOpacity(0.10),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
-                GapW(5.w),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Spacer(),
-                      CustomText(
-                        authenticationProvider.user!.username,
-                        color: AppColor.whiteColor,
-                        fontSize: 13.sp,
-                      ),
-                      CustomText(
-                        authenticationProvider.user!.email,
-                        color: AppColor.whiteColor.withOpacity(0.50),
-                      ),
-                      const Spacer(),
-                      CustomButton(
-                        onPressed: () => _onEditProfileTap(context),
-                        text: 'Edit Profile',
-                        height: 30,
-                        buttonColor: AppColor.transparent,
-                        textStyle: TextStyle(
-                          fontSize: 10.sp,
-                          color: AppColor.whiteColor.withOpacity(0.50),
-                        ),
-                        border: Border.all(
-                          color: AppColor.whiteColor.withOpacity(0.10),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }

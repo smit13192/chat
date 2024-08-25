@@ -1,5 +1,3 @@
-
-
 import 'package:chat/src/api/exception/api_exception.dart';
 import 'package:chat/src/api/failure/failure.dart';
 import 'package:chat/src/api/state/data_state.dart';
@@ -56,6 +54,24 @@ class AuthenticationRepositoryImpl implements AuthenticationRepository {
   Future<DataState<UserEntity>> profile() async {
     try {
       final response = await _apiAuthenticationDataSource.profile();
+      return DataState.success(response);
+    } on ApiException catch (e) {
+      return DataState.failure(e.failure);
+    } catch (e) {
+      return DataState.failure(Failure.failure(500));
+    }
+  }
+
+  @override
+  Future<DataState<UserEntity>> updateProfile({
+    required String username,
+    String? image,
+  }) async {
+    try {
+      final response = await _apiAuthenticationDataSource.updateProfile(
+        username: username,
+        image: image,
+      );
       return DataState.success(response);
     } on ApiException catch (e) {
       return DataState.failure(e.failure);

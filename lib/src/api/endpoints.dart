@@ -9,6 +9,7 @@ class Endpoints {
   static const String login = '$baseUrl/login';
   static const String register = '$baseUrl/register';
   static const String profile = '$baseUrl/profile';
+  static const String updateProfile = '$baseUrl/update-profile';
   static const String getAllUser = '$baseUrl/get-all-user';
   static const String chat = '$baseUrl/chat';
   static const String getAllChatMessage = '$baseUrl/chat/get-all-chat-message';

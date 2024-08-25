@@ -1,4 +1,3 @@
-
 import 'package:chat/src/api/api_client.dart';
 import 'package:chat/src/core/services/network_service.dart';
 import 'package:chat/src/core/services/socket_service.dart';
@@ -8,6 +7,7 @@ import 'package:chat/src/feature/auth/domain/repository/authentication_repositor
 import 'package:chat/src/feature/auth/domain/usecase/login_usecase.dart';
 import 'package:chat/src/feature/auth/domain/usecase/profile_usecase.dart';
 import 'package:chat/src/feature/auth/domain/usecase/register_usecase.dart';
+import 'package:chat/src/feature/auth/domain/usecase/update_profile_usecase.dart';
 import 'package:chat/src/feature/auth/presentation/provider/authentication_provider.dart';
 import 'package:chat/src/feature/home/data/datasource/home_datasource.dart';
 import 'package:chat/src/feature/home/data/repository/home_repository_impl.dart';
@@ -124,6 +124,11 @@ void authenticationInit() {
       authenticationRepository: locator<AuthenticationRepository>(),
     ),
   );
+  locator.registerFactory(
+    () => UpdateProfileUseCase(
+      authenticationRepository: locator<AuthenticationRepository>(),
+    ),
+  );
 
   // provider initilize
   locator.registerLazySingleton(
@@ -131,6 +136,7 @@ void authenticationInit() {
       loginUseCase: locator<LoginUseCase>(),
       registerUseCase: locator<RegisterUseCase>(),
       profileUseCase: locator<ProfileUseCase>(),
+      updateProfileUseCase: locator<UpdateProfileUseCase>(),
     ),
   );
 }

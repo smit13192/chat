@@ -5,6 +5,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
+final systemOverlayStyle = SystemUiOverlayStyle.light.copyWith(
+  statusBarColor: Colors.transparent,
+  statusBarBrightness: Brightness.dark,
+);
+
 Future<void> boxOpen() async {
   await Hive.openBox(StorageString.mainAppBoxName);
 }
@@ -14,11 +19,7 @@ Future<void> init() async {
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
   ]);
-  SystemChrome.setSystemUIOverlayStyle(
-    SystemUiOverlayStyle.light.copyWith(
-      statusBarColor: Colors.transparent,
-    ),
-  );
+  SystemChrome.setSystemUIOverlayStyle(systemOverlayStyle);
   await Hive.initFlutter();
   await boxOpen();
   initLocator();
