@@ -39,6 +39,7 @@ class AuthenticationProvider extends ChangeNotifier {
     }
     final result = await profileUseCase();
     if (result.isFailure) {
+      await Storage.instance.clear();
       navigatorState.pushNamedAndRemoveUntil(
         Routes.login,
         (route) => false,

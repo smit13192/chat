@@ -29,4 +29,9 @@ class Storage {
     final box = Hive.box(StorageString.mainAppBoxName);
     return box.get(StorageString.userId, defaultValue: null);
   }
+
+  Future<void> clear() async {
+    final box = Hive.box(StorageString.mainAppBoxName);
+    await box.clear();
+  }
 }
