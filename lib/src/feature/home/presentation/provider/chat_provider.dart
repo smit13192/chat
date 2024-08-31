@@ -1,4 +1,5 @@
 import 'package:chat/src/api/failure/failure.dart';
+import 'package:chat/src/core/services/aes_cipher_service.dart';
 import 'package:chat/src/core/services/socket_service.dart';
 import 'package:chat/src/core/utils/formz_status.dart';
 import 'package:chat/src/feature/home/data/model/chat_model.dart';
@@ -123,8 +124,13 @@ class ChatProvider extends ChangeNotifier {
     required String chatId,
     required String message,
   }) async {
+    final encryptedData = AESCipherService.encrypt(message);
     final result = await sendMessageUseCase(
-      SendMessageParams(chatId: chatId, message: message),
+      SendMessageParams(
+        chatId: chatId,
+        message: encryptedData.encryptedData,
+        messageIv: encryptedData.iv,
+      ),
     );
     if (result.isFailure) return;
   }

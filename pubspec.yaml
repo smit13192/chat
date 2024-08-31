@@ -32,6 +32,7 @@ dependencies:
   image_picker: ^1.1.2
   device_info_plus: ^10.1.2
   http_parser: ^4.0.2
+  encrypt: ^5.0.3
 
 flutter_assets:
   assets_path: assets/

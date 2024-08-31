@@ -29,6 +29,8 @@ abstract interface class HomeRepository {
   Future<DataState<MessageEntity>> sendMessage({
     required String chatId,
     required String message,
+    required String messageIv,
+    required String? replyToMessage,
   });
 
   Future<DataState<MessageEntity>> deleteMessage({

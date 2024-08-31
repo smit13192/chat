@@ -102,12 +102,16 @@ class ApiHomeDataSource {
   Future<MessageModel> sendMessage({
     required String chatId,
     required String message,
+    required String messageIv,
+    required String? replyToMessage,
   }) async {
     final response = await _apiClient.post(
       Endpoints.sendMessage,
       data: {
         'chat': chatId,
         'message': message,
+        'messageIv': messageIv,
+        'replyToMessage': replyToMessage,
       },
     );
     final result = CommonModel.fromMap(

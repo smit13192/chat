@@ -1,5 +1,3 @@
-
-
 import 'package:chat/src/api/exception/api_exception.dart';
 import 'package:chat/src/api/failure/failure.dart';
 import 'package:chat/src/api/state/data_state.dart';
@@ -86,11 +84,15 @@ class HomeRepositoryImpl implements HomeRepository {
   Future<DataState<MessageEntity>> sendMessage({
     required String chatId,
     required String message,
+    required String messageIv,
+    required String? replyToMessage,
   }) async {
     try {
       final response = await _apiHomeDataSource.sendMessage(
         chatId: chatId,
         message: message,
+        messageIv: messageIv,
+        replyToMessage: replyToMessage,
       );
       return DataState.success(response);
     } on ApiException catch (e) {

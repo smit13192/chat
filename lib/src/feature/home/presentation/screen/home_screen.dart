@@ -3,6 +3,7 @@ import 'package:chat/src/api/endpoints.dart';
 import 'package:chat/src/config/constant/app_color.dart';
 import 'package:chat/src/config/router/router.dart';
 import 'package:chat/src/core/database/storage.dart';
+import 'package:chat/src/core/services/aes_cipher_service.dart';
 import 'package:chat/src/core/utils/formz_status.dart';
 import 'package:chat/src/core/widgets/custom_image.dart';
 import 'package:chat/src/core/widgets/custom_text.dart';
@@ -120,8 +121,12 @@ class GetAllChatView extends StatelessWidget {
               fontSize: 13.sp,
             ),
             subtitle: CustomText(
-              chat.lastMessage?.message ??
-                  'Hello! Feel free to start the conversation.',
+              chat.lastMessage != null
+                  ? AESCipherService.decrypt(
+                      chat.lastMessage!.message,
+                      chat.lastMessage!.messageIv,
+                    )
+                  : 'Hello! Feel free to start the conversation.',
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               color: AppColor.whiteColor.withOpacity(0.70),

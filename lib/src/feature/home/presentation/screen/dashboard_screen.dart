@@ -78,7 +78,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
         ),
         child: SafeArea(
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: List.generate(
               bottomList.length,
               (index) {
@@ -86,25 +85,27 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 final color = index == selectedTab
                     ? AppColor.whiteColor.withOpacity(0.80)
                     : AppColor.whiteColor.withOpacity(0.30);
-                return GestureDetector(
-                  onTap: () => _onTabChanged(index),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        e.icon,
-                        size: 20.sp,
-                        color: color,
-                      ),
-                      GapH(0.2.h),
-                      CustomText(
-                        e.name,
-                        fontSize: 12.sp,
-                        fontWeight: FontWeight.w400,
-                        color: color,
-                      ),
-                    ],
+                return Expanded(
+                  child: GestureDetector(
+                    onTap: () => _onTabChanged(index),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          e.icon,
+                          size: 20.sp,
+                          color: color,
+                        ),
+                        GapH(0.2.h),
+                        CustomText(
+                          e.name,
+                          fontSize: 12.sp,
+                          fontWeight: FontWeight.w400,
+                          color: color,
+                        ),
+                      ],
+                    ),
                   ),
                 );
               },

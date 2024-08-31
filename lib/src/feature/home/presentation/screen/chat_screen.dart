@@ -3,6 +3,7 @@ import 'package:chat/src/api/endpoints.dart';
 import 'package:chat/src/config/constant/app_color.dart';
 import 'package:chat/src/core/database/storage.dart';
 import 'package:chat/src/core/extension/datetime_extension.dart';
+import 'package:chat/src/core/services/aes_cipher_service.dart';
 import 'package:chat/src/core/utils/formz_status.dart';
 import 'package:chat/src/core/widgets/custom_button.dart';
 import 'package:chat/src/core/widgets/custom_form_field.dart';
@@ -267,7 +268,7 @@ class MessageBuild extends StatelessWidget {
   }
 }
 
-class MessageTile extends StatefulWidget {
+class MessageTile extends StatelessWidget {
   final MessageEntity message;
   final String? userId;
   final Set<MessageEntity> chats;
@@ -284,29 +285,24 @@ class MessageTile extends StatefulWidget {
   });
 
   @override
-  State<MessageTile> createState() => _MessageTileState();
-}
-
-class _MessageTileState extends State<MessageTile> {
-  @override
   Widget build(BuildContext context) {
-    bool isUserSend = widget.message.sender.userId == widget.userId;
+    bool isUserSend = message.sender.userId == userId;
     bool isTimeShow = false;
-    if (widget.index == 0) {
+    if (index == 0) {
       isTimeShow = true;
-    } else if (widget.chats.elementAt(widget.index - 1).sender.userId !=
-        widget.message.sender.userId) {
+    } else if (chats.elementAt(index - 1).sender.userId !=
+        message.sender.userId) {
       isTimeShow = true;
     }
 
     bool isDateShow = false;
-    if (widget.index == widget.chats.length - 1) {
+    if (index == chats.length - 1) {
       isDateShow = true;
-    } else if (widget.chats
-            .elementAt(widget.index + 1)
+    } else if (chats
+            .elementAt(index + 1)
             .createdAt
             .toFormatedString() !=
-        widget.message.createdAt.toFormatedString()) {
+        message.createdAt.toFormatedString()) {
       isDateShow = true;
     }
     return Column(
@@ -322,7 +318,7 @@ class _MessageTileState extends State<MessageTile> {
               ),
               GapW(3.w),
               CustomText(
-                widget.message.createdAt.toFormatedString('d, MMMM yyyy'),
+                message.createdAt.toFormatedString('d, MMMM yyyy'),
                 color: AppColor.whiteColor.withOpacity(0.60),
               ),
               GapW(3.w),
@@ -338,7 +334,7 @@ class _MessageTileState extends State<MessageTile> {
         Align(
           alignment: isUserSend ? Alignment.centerRight : Alignment.centerLeft,
           child: GestureDetector(
-            onDoubleTap: () => widget.onMessageDoubleTap(widget.message),
+            onDoubleTap: () => onMessageDoubleTap(message),
             child: Column(
               crossAxisAlignment: isUserSend
                   ? CrossAxisAlignment.end
@@ -356,7 +352,10 @@ class _MessageTileState extends State<MessageTile> {
                   child: ConstrainedBox(
                     constraints: BoxConstraints(maxWidth: 70.w),
                     child: CustomText(
-                      widget.message.message,
+                      AESCipherService.decrypt(
+                        message.message,
+                        message.messageIv,
+                      ),
                       color: AppColor.whiteColor,
                       fontSize: 13.sp,
                     ),
@@ -364,7 +363,7 @@ class _MessageTileState extends State<MessageTile> {
                 ),
                 if (isTimeShow)
                   CustomText(
-                    widget.message.createdAt.toFormatedString('hh:mm'),
+                    message.createdAt.toFormatedString('hh:mm'),
                     fontSize: 9.sp,
                     color: AppColor.whiteColor.withOpacity(0.40),
                   ),

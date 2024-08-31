@@ -1,3 +1,4 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:chat/src/api/state/data_state.dart';
 import 'package:chat/src/core/usecase/usecase.dart';
 import 'package:chat/src/feature/home/domain/entity/message_entity.dart';
@@ -18,6 +19,8 @@ class SendMessageUseCase
     return _homeRepository.sendMessage(
       chatId: params.chatId,
       message: params.message,
+      messageIv: params.messageIv,
+      replyToMessage: params.replyToMessage,
     );
   }
 }
@@ -25,9 +28,13 @@ class SendMessageUseCase
 class SendMessageParams {
   String chatId;
   String message;
+  String messageIv;
+  String? replyToMessage;
 
   SendMessageParams({
     required this.chatId,
     required this.message,
+    required this.messageIv,
+    this.replyToMessage,
   });
 }

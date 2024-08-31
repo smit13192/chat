@@ -1,5 +1,3 @@
-
-
 import 'package:chat/src/feature/auth/data/model/login_model.dart';
 import 'package:chat/src/feature/home/domain/entity/message_entity.dart';
 
@@ -9,6 +7,7 @@ class MessageModel extends MessageEntity {
     required super.message,
     required super.sender,
     required super.chat,
+    required super.messageIv,
     required super.createdAt,
     required super.updatedAt,
   });
@@ -19,6 +18,7 @@ class MessageModel extends MessageEntity {
       message: map['message'],
       sender: UserModel.fromMap(map['sender']),
       chat: map['chat'],
+      messageIv: map['messageIv'],
       createdAt: DateTime.parse(map['createdAt']).toLocal(),
       updatedAt: DateTime.parse(map['updatedAt']).toLocal(),
     );
