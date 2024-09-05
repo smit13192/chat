@@ -3,7 +3,7 @@ import 'package:chat/src/core/usecase/usecase.dart';
 import 'package:chat/src/feature/home/domain/entity/chat_entity.dart';
 import 'package:chat/src/feature/home/domain/repository/home_repository.dart';
 
-class AccessChatUseCase extends UserCase<String, DataState<ChatEntity>> {
+class AccessChatUseCase extends UseCase<String, DataState<ChatEntity>> {
   final HomeRepository _homeRepository;
 
   AccessChatUseCase({

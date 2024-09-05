@@ -3,7 +3,7 @@ import 'package:chat/src/core/usecase/usecase.dart';
 import 'package:chat/src/feature/auth/domain/entity/login_entity.dart';
 import 'package:chat/src/feature/auth/domain/repository/authentication_repository.dart';
 
-class LoginUseCase extends UserCase<LoginParams, DataState<LoginEnity>> {
+class LoginUseCase extends UseCase<LoginParams, DataState<LoginEnity>> {
   final AuthenticationRepository _authenticationRepository;
 
   LoginUseCase({

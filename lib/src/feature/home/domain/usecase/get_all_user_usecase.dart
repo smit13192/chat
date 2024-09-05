@@ -4,7 +4,7 @@ import 'package:chat/src/feature/auth/domain/entity/login_entity.dart';
 import 'package:chat/src/feature/home/domain/repository/home_repository.dart';
 
 class GetAllUserUseCase
-    extends UserCase<GetAllUserParams, DataState<List<UserEntity>>> {
+    extends UseCase<GetAllUserParams, DataState<List<UserEntity>>> {
   final HomeRepository _homeRepository;
 
   GetAllUserUseCase({

@@ -11,13 +11,13 @@ class Log {
 
   static void e(dynamic data) {
     if (kDebugMode) {
-      log('$data', name: 'SUCCESS');
+      log('$data', name: 'ERROR');
     }
   }
 
   static void s(dynamic data) {
     if (kDebugMode) {
-      log('$data', name: 'ERROR');
+      log('$data', name: 'SUCCESS');
     }
   }
 }

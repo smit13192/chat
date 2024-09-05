@@ -4,7 +4,7 @@ import 'package:chat/src/feature/home/domain/entity/chat_message_entity.dart';
 import 'package:chat/src/feature/home/domain/repository/home_repository.dart';
 
 class GetAllChatMessageUseCase
-    extends UserCase<GetAllChatMessageParams, DataState<ChatMessageEntity>> {
+    extends UseCase<GetAllChatMessageParams, DataState<ChatMessageEntity>> {
   final HomeRepository _homeRepository;
 
   GetAllChatMessageUseCase({

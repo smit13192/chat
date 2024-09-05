@@ -4,7 +4,7 @@ import 'package:chat/src/feature/home/domain/entity/message_entity.dart';
 import 'package:chat/src/feature/home/domain/repository/home_repository.dart';
 
 class DeleteMessageUseCase
-    extends UserCase<DeleteMessageParams, DataState<MessageEntity>> {
+    extends UseCase<DeleteMessageParams, DataState<MessageEntity>> {
   final HomeRepository _homeRepository;
 
   DeleteMessageUseCase({

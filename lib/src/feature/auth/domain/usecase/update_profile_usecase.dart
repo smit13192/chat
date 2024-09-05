@@ -4,7 +4,7 @@ import 'package:chat/src/feature/auth/domain/entity/login_entity.dart';
 import 'package:chat/src/feature/auth/domain/repository/authentication_repository.dart';
 
 class UpdateProfileUseCase
-    extends UserCase<UpdateProfileParams, DataState<UserEntity>> {
+    extends UseCase<UpdateProfileParams, DataState<UserEntity>> {
   final AuthenticationRepository _authenticationRepository;
 
   UpdateProfileUseCase({

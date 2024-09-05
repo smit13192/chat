@@ -5,7 +5,7 @@ import 'package:chat/src/feature/home/domain/entity/message_entity.dart';
 import 'package:chat/src/feature/home/domain/repository/home_repository.dart';
 
 class SendMessageUseCase
-    extends UserCase<SendMessageParams, DataState<MessageEntity>> {
+    extends UseCase<SendMessageParams, DataState<MessageEntity>> {
   final HomeRepository _homeRepository;
 
   SendMessageUseCase({

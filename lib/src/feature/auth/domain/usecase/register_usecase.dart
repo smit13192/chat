@@ -2,7 +2,7 @@ import 'package:chat/src/api/state/data_state.dart';
 import 'package:chat/src/core/usecase/usecase.dart';
 import 'package:chat/src/feature/auth/domain/repository/authentication_repository.dart';
 
-class RegisterUseCase extends UserCase<RegisterParams, DataState<String>> {
+class RegisterUseCase extends UseCase<RegisterParams, DataState<String>> {
   final AuthenticationRepository _authenticationRepository;
 
   RegisterUseCase({
