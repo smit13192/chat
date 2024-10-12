@@ -3,6 +3,7 @@ import 'package:chat/locator.dart';
 import 'package:chat/src/core/database/storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
 final systemOverlayStyle = SystemUiOverlayStyle.light.copyWith(
@@ -26,7 +27,9 @@ Future<void> init() async {
 }
 
 Future<void> main(List<String> args) async {
-  WidgetsFlutterBinding.ensureInitialized();
+  WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
+  FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
   await init();
+  FlutterNativeSplash.remove();
   runApp(const App());
 }

@@ -22,7 +22,7 @@ class EncryptedData {
 }
 
 class AESCipherService {
-  static String key = const String.fromEnvironment('key');
+  static String key = 'JUIPOUHZVBNMJKIOYUSGHYARTYUIOSKQ';
   // Static method for encryption
   static EncryptedData encrypt(String plaintext) {
     // Convert the key into a 256-bit format

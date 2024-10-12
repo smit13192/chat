@@ -41,11 +41,9 @@
 			<string>UIInterfaceOrientationLandscapeLeft</string>
 			<string>UIInterfaceOrientationLandscapeRight</string>
 		</array>
-
 		<!-- Permission options for the `photos` group -->
-	    <key>NSPhotoLibraryUsageDescription</key>
+		<key>NSPhotoLibraryUsageDescription</key>
 		<string>Allow access to your photo library to upload and choose media for your profile and chats.</string>
-
 		<key>CADisableMinimumFrameDurationOnPhone</key>
 		<true/>
 		<key>UIApplicationSupportsIndirectInputEvents</key>
