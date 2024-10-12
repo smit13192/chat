@@ -54,7 +54,8 @@ class PermissionService {
         'The app needs access to your device features to function properly. Please enable the required permissions in the app settings.',
   }) async {
     final status = await permission.request();
-    if (status == PermissionStatus.granted) return true;
+    if (status == PermissionStatus.granted ||
+        status == PermissionStatus.limited) return true;
     if (status == PermissionStatus.denied) {
       return false;
     }
