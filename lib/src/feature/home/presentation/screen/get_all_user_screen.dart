@@ -1,8 +1,8 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:chat/locator.dart';
 import 'package:chat/src/api/endpoints.dart';
 import 'package:chat/src/config/constant/app_color.dart';
 import 'package:chat/src/core/utils/formz_status.dart';
-import 'package:chat/src/core/widgets/custom_image.dart';
 import 'package:chat/src/core/widgets/custom_text.dart';
 import 'package:chat/src/feature/auth/domain/entity/login_entity.dart';
 import 'package:chat/src/feature/home/presentation/provider/home_provider.dart';
@@ -90,13 +90,10 @@ class AllUserView extends StatelessWidget {
               onTap: () => _onUserTap(context, user),
               leading: Stack(
                 children: [
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(2.5.h),
-                    child: SizedBox(
-                      height: 5.h,
-                      width: 5.h,
-                      child: CustomImage(user.image.toApiImage()),
-                    ),
+                  CircleAvatar(
+                    backgroundColor: AppColor.transparent,
+                    backgroundImage:
+                        CachedNetworkImageProvider(user.image.toApiImage()),
                   ),
                   if (activeUser.contains(user.userId))
                     Positioned(

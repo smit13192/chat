@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:chat/locator.dart';
 import 'package:chat/src/api/endpoints.dart';
 import 'package:chat/src/config/constant/app_color.dart';
@@ -7,7 +8,6 @@ import 'package:chat/src/core/services/aes_cipher_service.dart';
 import 'package:chat/src/core/utils/formz_status.dart';
 import 'package:chat/src/core/widgets/custom_button.dart';
 import 'package:chat/src/core/widgets/custom_form_field.dart';
-import 'package:chat/src/core/widgets/custom_image.dart';
 import 'package:chat/src/core/widgets/custom_text.dart';
 import 'package:chat/src/core/widgets/gap.dart';
 import 'package:chat/src/feature/home/domain/entity/chat_entity.dart';
@@ -117,13 +117,10 @@ class _ChatViewState extends State<ChatView> {
                       ),
                       Expanded(
                         child: ListTile(
-                          leading: ClipRRect(
-                            borderRadius: BorderRadius.circular(2.5.h),
-                            child: SizedBox(
-                              height: 5.h,
-                              width: 5.h,
-                              child: CustomImage(image.toApiImage()),
-                            ),
+                          leading: CircleAvatar(
+                            backgroundColor: AppColor.transparent,
+                            backgroundImage:
+                                CachedNetworkImageProvider(image.toApiImage()),
                           ),
                           title: CustomText(
                             chatName,
@@ -298,10 +295,7 @@ class MessageTile extends StatelessWidget {
     bool isDateShow = false;
     if (index == chats.length - 1) {
       isDateShow = true;
-    } else if (chats
-            .elementAt(index + 1)
-            .createdAt
-            .toFormatedString() !=
+    } else if (chats.elementAt(index + 1).createdAt.toFormatedString() !=
         message.createdAt.toFormatedString()) {
       isDateShow = true;
     }

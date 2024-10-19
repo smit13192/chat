@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:chat/locator.dart';
 import 'package:chat/src/api/endpoints.dart';
 import 'package:chat/src/config/constant/app_color.dart';
@@ -5,7 +6,6 @@ import 'package:chat/src/config/router/router.dart';
 import 'package:chat/src/core/database/storage.dart';
 import 'package:chat/src/core/services/aes_cipher_service.dart';
 import 'package:chat/src/core/utils/formz_status.dart';
-import 'package:chat/src/core/widgets/custom_image.dart';
 import 'package:chat/src/core/widgets/custom_text.dart';
 import 'package:chat/src/feature/home/domain/entity/chat_entity.dart';
 import 'package:chat/src/feature/home/presentation/provider/chat_provider.dart';
@@ -107,13 +107,9 @@ class GetAllChatView extends StatelessWidget {
                   : chat.users[recieverUserIndex].image;
           return ListTile(
             onTap: () => _onChatTap(context, chat),
-            leading: ClipRRect(
-              borderRadius: BorderRadius.circular(2.5.h),
-              child: SizedBox(
-                height: 5.h,
-                width: 5.h,
-                child: CustomImage(image.toApiImage()),
-              ),
+            leading: CircleAvatar(
+              backgroundColor: AppColor.transparent,
+              backgroundImage: CachedNetworkImageProvider(image.toApiImage()),
             ),
             title: CustomText(
               chatName,
