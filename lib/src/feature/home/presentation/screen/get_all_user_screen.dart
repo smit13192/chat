@@ -1,9 +1,11 @@
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:chat/locator.dart';
 import 'package:chat/src/api/endpoints.dart';
 import 'package:chat/src/config/constant/app_color.dart';
 import 'package:chat/src/core/utils/formz_status.dart';
+import 'package:chat/src/core/utils/post_frame_callback_mixin.dart';
 import 'package:chat/src/core/widgets/custom_text.dart';
+import 'package:chat/src/core/widgets/loader.dart';
+import 'package:chat/src/core/widgets/refresh.dart';
 import 'package:chat/src/feature/auth/domain/entity/login_entity.dart';
 import 'package:chat/src/feature/home/presentation/provider/home_provider.dart';
 import 'package:flutter/material.dart';
@@ -16,12 +18,7 @@ class GetAllUserScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MultiProvider(
-      providers: [
-        ChangeNotifierProvider.value(value: locator<HomeProvider>()),
-      ],
-      child: const GetAllUserView(),
-    );
+    return const GetAllUserView();
   }
 }
 
@@ -32,13 +29,15 @@ class GetAllUserView extends StatefulWidget {
   State<GetAllUserView> createState() => _GetAllUserViewState();
 }
 
-class _GetAllUserViewState extends State<GetAllUserView> {
+class _GetAllUserViewState extends State<GetAllUserView>
+    with PostFrameCallbackMixin {
   @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<HomeProvider>().getAllUser(isFromMain: true);
-    });
+  void onPostFrameCallback() {
+    init();
+  }
+
+  void init() {
+    context.read<HomeProvider>().getAllUser(isFromMain: true);
   }
 
   @override
@@ -49,12 +48,12 @@ class _GetAllUserViewState extends State<GetAllUserView> {
           final status = context
               .select<HomeProvider, FormzStatus>((value) => value.status);
           switch (status) {
-            case FormzStatus.loading:
-              return const Center(child: CircularProgressIndicator());
+            case FormzStatus.failed:
+              return Refresh(onRefresh: init);
             case FormzStatus.success:
               return const AllUserView();
             default:
-              return const SizedBox.shrink();
+              return const Loader();
           }
         },
       ),
@@ -81,7 +80,7 @@ class AllUserView extends StatelessWidget {
           itemCount: (users.length + (isDataOver ? 0 : 1)),
           itemBuilder: (context, index) {
             if (index == users.length) {
-              return const Center(child: CircularProgressIndicator());
+              return const Loader();
             }
 
             final user = users[index];

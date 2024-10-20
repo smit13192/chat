@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:chat/locator.dart';
 import 'package:chat/src/api/endpoints.dart';
@@ -6,10 +8,13 @@ import 'package:chat/src/core/database/storage.dart';
 import 'package:chat/src/core/extension/datetime_extension.dart';
 import 'package:chat/src/core/services/aes_cipher_service.dart';
 import 'package:chat/src/core/utils/formz_status.dart';
+import 'package:chat/src/core/utils/post_frame_callback_mixin.dart';
 import 'package:chat/src/core/widgets/custom_button.dart';
 import 'package:chat/src/core/widgets/custom_form_field.dart';
 import 'package:chat/src/core/widgets/custom_text.dart';
 import 'package:chat/src/core/widgets/gap.dart';
+import 'package:chat/src/core/widgets/loader.dart';
+import 'package:chat/src/core/widgets/refresh.dart';
 import 'package:chat/src/feature/home/domain/entity/chat_entity.dart';
 import 'package:chat/src/feature/home/domain/entity/message_entity.dart';
 import 'package:chat/src/feature/home/presentation/provider/chat_provider.dart';
@@ -35,8 +40,7 @@ class ChatScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider.value(value: locator<ChatProvider>()),
-        ChangeNotifierProvider.value(value: locator<HomeProvider>()),
+        ChangeNotifierProvider(create: (context) => locator<ChatProvider>()),
       ],
       child: ChatView(chatEntity: params.chatEnity),
     );
@@ -51,8 +55,10 @@ class ChatView extends StatefulWidget {
   State<ChatView> createState() => _ChatViewState();
 }
 
-class _ChatViewState extends State<ChatView> {
+class _ChatViewState extends State<ChatView> with PostFrameCallbackMixin {
   late String? userId;
+  StreamSubscription<MessageEntity>? liveMessage;
+  StreamSubscription<MessageEntity>? removeMessage;
   final focusNode = FocusNode();
   TextEditingController messageController = TextEditingController();
 
@@ -60,10 +66,21 @@ class _ChatViewState extends State<ChatView> {
   void initState() {
     super.initState();
     userId = Storage.instance.getId();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      context
-          .read<ChatProvider>()
-          .getChatMessage(widget.chatEntity.chatId, isFromMain: true);
+  }
+
+  @override
+  void onPostFrameCallback() {
+    focusNode.requestFocus();
+    final chatProvider = context.read<ChatProvider>();
+    chatProvider.getChatMessage(widget.chatEntity.chatId, isFromMain: true);
+    final chatManageProvider = context.read<HomeProvider>();
+    liveMessage = chatManageProvider.liveMessage.stream.listen((message) {
+      if (message.chat != widget.chatEntity.chatId) return;
+      chatProvider.addLiveChatMessage(message);
+    });
+    removeMessage = chatManageProvider.removeMessage.stream.listen((message) {
+      if (message.chat != widget.chatEntity.chatId) return;
+      chatProvider.deleteLiveChatMessage(message);
     });
   }
 
@@ -71,6 +88,8 @@ class _ChatViewState extends State<ChatView> {
   void dispose() {
     messageController.dispose();
     focusNode.dispose();
+    liveMessage?.cancel();
+    removeMessage?.cancel();
     super.dispose();
   }
 
@@ -152,15 +171,19 @@ class _ChatViewState extends State<ChatView> {
                   (value) => value.status,
                 );
                 switch (status) {
-                  case FormzStatus.loading:
-                    return const Center(child: CircularProgressIndicator());
+                  case FormzStatus.failed:
+                    return Refresh(
+                      onRefresh: () => context
+                          .read<ChatProvider>()
+                          .getChatMessage(widget.chatEntity.chatId),
+                    );
                   case FormzStatus.success:
                     return MessageBuild(
                       userId: userId,
                       chatId: widget.chatEntity.chatId,
                     );
                   default:
-                    return const SizedBox.shrink();
+                    return const Loader();
                 }
               },
             ),
@@ -222,8 +245,7 @@ class MessageBuild extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final chats =
-        context.watch<ChatProvider>().chatData[chatId]?.allMessages ?? {};
+    final chats = context.watch<ChatProvider>().messages;
     return LazyLoadScrollView(
       onEndOfPage: () => _onPageOver(context, chatId),
       child: ListView.builder(

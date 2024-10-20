@@ -1,14 +1,15 @@
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:chat/locator.dart';
 import 'package:chat/src/api/endpoints.dart';
 import 'package:chat/src/config/constant/app_color.dart';
 import 'package:chat/src/config/router/router.dart';
 import 'package:chat/src/core/database/storage.dart';
 import 'package:chat/src/core/services/aes_cipher_service.dart';
 import 'package:chat/src/core/utils/formz_status.dart';
+import 'package:chat/src/core/utils/post_frame_callback_mixin.dart';
 import 'package:chat/src/core/widgets/custom_text.dart';
+import 'package:chat/src/core/widgets/loader.dart';
+import 'package:chat/src/core/widgets/refresh.dart';
 import 'package:chat/src/feature/home/domain/entity/chat_entity.dart';
-import 'package:chat/src/feature/home/presentation/provider/chat_provider.dart';
 import 'package:chat/src/feature/home/presentation/provider/home_provider.dart';
 import 'package:chat/src/feature/home/presentation/screen/chat_screen.dart';
 import 'package:flutter/material.dart';
@@ -20,13 +21,7 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MultiProvider(
-      providers: [
-        ChangeNotifierProvider.value(value: locator<ChatProvider>()),
-        ChangeNotifierProvider.value(value: locator<HomeProvider>()),
-      ],
-      child: const HomeView(),
-    );
+    return const HomeView();
   }
 }
 
@@ -37,16 +32,17 @@ class HomeView extends StatefulWidget {
   State<HomeView> createState() => _HomeViewState();
 }
 
-class _HomeViewState extends State<HomeView> {
+class _HomeViewState extends State<HomeView> with PostFrameCallbackMixin {
   @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<ChatProvider>().getAllUserChat(checkIsEmpty: true);
-      context.read<HomeProvider>().emitActiveUser();
-      context.read<ChatProvider>().listenNewMessage();
-      context.read<ChatProvider>().listenDeleteMessage();
-    });
+  void onPostFrameCallback() {
+    init();
+    context.read<HomeProvider>().emitActiveUser();
+    context.read<HomeProvider>().listenNewMessage();
+    context.read<HomeProvider>().listenDeleteMessage();
+  }
+
+  void init() {
+    context.read<HomeProvider>().getAllUserChat();
   }
 
   @override
@@ -54,16 +50,16 @@ class _HomeViewState extends State<HomeView> {
     return Scaffold(
       body: Builder(
         builder: (context) {
-          final status = context.select<ChatProvider, FormzStatus>(
+          final status = context.select<HomeProvider, FormzStatus>(
             (value) => value.getAllChatStatus,
           );
           switch (status) {
-            case FormzStatus.loading:
-              return const Center(child: CircularProgressIndicator());
+            case FormzStatus.failed:
+              return Refresh(onRefresh: init);
             case FormzStatus.success:
               return const GetAllChatView();
             default:
-              return const SizedBox.shrink();
+              return const Loader();
           }
         },
       ),
@@ -76,12 +72,12 @@ class GetAllChatView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final chats = context.select<ChatProvider, List<ChatEntity>>(
+    final chats = context.select<HomeProvider, List<ChatEntity>>(
       (value) => value.chatList,
     );
 
     if (chats.isEmpty) {
-      return const SizedBox.shrink();
+      return Refresh(onRefresh: () => _onRefresh(context));
     }
 
     String? userId = Storage.instance.getId();
@@ -142,6 +138,6 @@ class GetAllChatView extends StatelessWidget {
   }
 
   Future<void> _onRefresh(BuildContext context) async {
-    await context.read<ChatProvider>().getAllUserChat();
+    await context.read<HomeProvider>().getAllUserChat();
   }
 }

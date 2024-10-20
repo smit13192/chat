@@ -2,6 +2,7 @@ import 'package:chat/main.dart';
 import 'package:chat/src/api/endpoints.dart';
 import 'package:chat/src/config/constant/app_color.dart';
 import 'package:chat/src/core/services/image_service.dart';
+import 'package:chat/src/core/utils/post_frame_callback_mixin.dart';
 import 'package:chat/src/core/utils/validator.dart';
 import 'package:chat/src/core/widgets/custom_button.dart';
 import 'package:chat/src/core/widgets/custom_form_field.dart';
@@ -21,25 +22,17 @@ class EditProfileScreen extends StatefulWidget {
   State<EditProfileScreen> createState() => _EditProfileScreenState();
 }
 
-class _EditProfileScreenState extends State<EditProfileScreen> {
+class _EditProfileScreenState extends State<EditProfileScreen>
+    with PostFrameCallbackMixin {
   TextEditingController usernameController = TextEditingController();
 
   final _key = GlobalKey<FormState>();
 
   @override
-  void initState() {
-    super.initState();
-    init();
-  }
-
-  void init() {
-    WidgetsBinding.instance.addPostFrameCallback(
-      (timeStamp) {
-        final authenticationProvider = context.read<AuthenticationProvider>();
-        usernameController.text = authenticationProvider.user!.username;
-        authenticationProvider.onUpdateImage(null);
-      },
-    );
+  void onPostFrameCallback() {
+    final authenticationProvider = context.read<AuthenticationProvider>();
+    usernameController.text = authenticationProvider.user!.username;
+    authenticationProvider.onUpdateImage(null);
   }
 
   @override

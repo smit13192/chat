@@ -82,13 +82,13 @@ void homeInit() {
     () => HomeProvider(
       getAllUserUseCase: locator<GetAllUserUseCase>(),
       accessChatUseCase: locator<AccessChatUseCase>(),
+      getAllUserChatUseCase: locator<GetAllUserChatUseCase>(),
     ),
   );
-  locator.registerLazySingleton(
+  locator.registerFactory(
     () => ChatProvider(
       getAllChatMessageUseCase: locator<GetAllChatMessageUseCase>(),
       sendMessageUseCase: locator<SendMessageUseCase>(),
-      getAllUserChatUseCase: locator<GetAllUserChatUseCase>(),
       deleteMessageUseCase: locator<DeleteMessageUseCase>(),
     ),
   );

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:chat/src/api/failure/failure.dart';
 import 'package:chat/src/config/router/router.dart';
 import 'package:chat/src/core/database/storage.dart';
@@ -6,7 +8,12 @@ import 'package:chat/src/core/services/socket_service.dart';
 import 'package:chat/src/core/utils/formz_status.dart';
 import 'package:chat/src/core/utils/screen_loading_controller.dart';
 import 'package:chat/src/feature/auth/domain/entity/login_entity.dart';
+import 'package:chat/src/feature/home/data/model/chat_model.dart';
+import 'package:chat/src/feature/home/data/model/message_model.dart';
+import 'package:chat/src/feature/home/domain/entity/chat_entity.dart';
+import 'package:chat/src/feature/home/domain/entity/message_entity.dart';
 import 'package:chat/src/feature/home/domain/usecase/access_chat_usecase.dart';
+import 'package:chat/src/feature/home/domain/usecase/get_all_user_chat_usecase.dart';
 import 'package:chat/src/feature/home/domain/usecase/get_all_user_usecase.dart';
 import 'package:chat/src/feature/home/presentation/screen/chat_screen.dart';
 import 'package:flutter/material.dart';
@@ -14,24 +21,37 @@ import 'package:flutter/material.dart';
 class HomeProvider extends ChangeNotifier {
   GetAllUserUseCase getAllUserUseCase;
   AccessChatUseCase accessChatUseCase;
+  GetAllUserChatUseCase getAllUserChatUseCase;
+
+  StreamController<MessageEntity> liveMessage = StreamController.broadcast();
+  StreamController<MessageEntity> removeMessage = StreamController.broadcast();
+
+  HomeProvider({
+    required this.getAllUserUseCase,
+    required this.accessChatUseCase,
+    required this.getAllUserChatUseCase,
+  });
+
+  List<String> activeUser = [];
 
   List<UserEntity> users = [];
-  List<String> activeUser = [];
   bool isDataOver = false;
-
   Failure? failure;
-
-  FormzStatus _status = FormzStatus.pure;
+  FormzStatus _status = FormzStatus.loading;
   FormzStatus get status => _status;
   set status(FormzStatus status) {
     _status = status;
     notifyListeners();
   }
 
-  HomeProvider({
-    required this.getAllUserUseCase,
-    required this.accessChatUseCase,
-  });
+  List<ChatEntity> chatList = [];
+  Failure? getAllChatFailure;
+  FormzStatus _getAllChatStatus = FormzStatus.loading;
+  FormzStatus get getAllChatStatus => _getAllChatStatus;
+  set getAllChatStatus(FormzStatus status) {
+    _getAllChatStatus = status;
+    notifyListeners();
+  }
 
   void emitActiveUser() {
     SocketService.instance.add(
@@ -91,6 +111,62 @@ class HomeProvider extends ChangeNotifier {
     navigatorState.pushNamed(
       Routes.chat,
       arguments: ChatScreenParmas(chatEnity: result.data),
+    );
+  }
+
+  Future<void> getAllUserChat() async {
+    getAllChatStatus = FormzStatus.loading;
+    final result = await getAllUserChatUseCase();
+    if (result.isSuccess) {
+      chatList = result.data;
+      getAllChatStatus = FormzStatus.success;
+      return;
+    }
+    getAllChatFailure = result.failure;
+    getAllChatStatus = FormzStatus.failed;
+  }
+
+  Future<void> changeLastSendMessage(
+    MessageEntity? message, {
+    String? chatId,
+  }) async {
+    chatList = List<ChatEntity>.from(chatList).map<ChatEntity>((e) {
+      if (e.chatId == (chatId ?? message!.chat)) {
+        return e.copyWith(lastMessage: message);
+      }
+      return e;
+    }).toList();
+    notifyListeners();
+  }
+
+  void listenNewMessage() {
+    SocketService.instance.add(
+      SocketListner(
+        event: 'new-message',
+        listner: (data) {
+          if (data == null) return;
+          final message = MessageModel.fromMap(data as Map<String, dynamic>);
+          liveMessage.add(message);
+          changeLastSendMessage(message);
+        },
+      ),
+    );
+  }
+
+  void listenDeleteMessage() {
+    SocketService.instance.add(
+      SocketListner(
+        event: 'delete-message',
+        listner: (data) {
+          if (data == null) return;
+          final message =
+              MessageModel.fromMap((data as Map<String, dynamic>)['message']);
+          final chat = ChatModel.fromMap(data['chat']);
+          final chatId = message.chat;
+          removeMessage.add(message);
+          changeLastSendMessage(chat.lastMessage, chatId: chatId);
+        },
+      ),
     );
   }
 }

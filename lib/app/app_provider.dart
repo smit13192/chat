@@ -1,5 +1,6 @@
 import 'package:chat/locator.dart';
 import 'package:chat/src/feature/auth/presentation/provider/authentication_provider.dart';
+import 'package:chat/src/feature/home/presentation/provider/home_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -11,9 +12,10 @@ class AppProvider extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider.value(
-          value: locator<AuthenticationProvider>(),
+        ChangeNotifierProvider(
+          create: (context) => locator<AuthenticationProvider>(),
         ),
+        ChangeNotifierProvider(create: (context) => locator<HomeProvider>()),
       ],
       child: child,
     );
