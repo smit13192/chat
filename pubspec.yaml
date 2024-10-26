@@ -15,7 +15,6 @@ dependencies:
 
   cupertino_icons: ^1.0.6
   provider: ^6.1.2
-  google_fonts: ^6.2.1
   dio: ^5.5.0+1
   hive: ^2.2.3
   hive_flutter: ^1.1.0
@@ -57,6 +56,6 @@ flutter:
 
   # example:
   fonts:
-    - family: JetBrains Mono
+    - family: Lato
       fonts:
         - asset: fonts/font.ttf

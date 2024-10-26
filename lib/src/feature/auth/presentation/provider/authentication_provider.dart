@@ -27,30 +27,16 @@ class AuthenticationProvider extends ChangeNotifier {
   UserEntity? user;
   File? updatedImage;
 
-  Future<void> checkIsLogin(BuildContext context) async {
+  Future<bool> checkIsLogin() async {
     String? token = Storage.instance.getToken();
-    final navigatorState = Navigator.of(context);
-    if (token == null) {
-      navigatorState.pushNamedAndRemoveUntil(
-        Routes.login,
-        (route) => false,
-      );
-      return;
-    }
+    if (token == null) return false;
     final result = await profileUseCase();
     if (result.isFailure) {
       await Storage.instance.clear();
-      navigatorState.pushNamedAndRemoveUntil(
-        Routes.login,
-        (route) => false,
-      );
-      return;
+      return false;
     }
     user = result.data;
-    navigatorState.pushNamedAndRemoveUntil(
-      Routes.dashboard,
-      (route) => false,
-    );
+    return true;
   }
 
   Future<void> login(

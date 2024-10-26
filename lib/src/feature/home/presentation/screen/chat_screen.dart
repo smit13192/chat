@@ -350,7 +350,7 @@ class MessageTile extends StatelessWidget {
         Align(
           alignment: isUserSend ? Alignment.centerRight : Alignment.centerLeft,
           child: GestureDetector(
-            onDoubleTap: () => onMessageDoubleTap(message),
+            onDoubleTap: () => isUserSend ? onMessageDoubleTap(message) : null,
             child: Column(
               crossAxisAlignment: isUserSend
                   ? CrossAxisAlignment.end

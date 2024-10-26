@@ -27,12 +27,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
         backgroundColor: AppColor.blackColor,
         onRefresh: () =>
             context.read<AuthenticationProvider>().getUserProfile(),
-        child: SingleChildScrollView(
+        child: CustomScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
-          child: Column(
-            children: [
-              GapH(2.h),
-              SizedBox(
+          slivers: [
+            SliverToBoxAdapter(child: GapH(2.h)),
+            SliverToBoxAdapter(
+              child: SizedBox(
                 height: 24.w,
                 child: Row(
                   children: [
@@ -81,8 +81,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ],
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

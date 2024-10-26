@@ -4,7 +4,6 @@ import 'package:chat/src/feature/auth/presentation/screen/login_screen.dart';
 import 'package:chat/src/feature/auth/presentation/screen/register_screen.dart';
 import 'package:chat/src/feature/home/presentation/screen/chat_screen.dart';
 import 'package:chat/src/feature/home/presentation/screen/dashboard_screen.dart';
-import 'package:chat/src/feature/splash/splash_screen.dart';
 import 'package:flutter/material.dart';
 
 part 'routes.dart';
@@ -27,8 +26,6 @@ abstract class AppRouter {
     builder: (arguments) => const NoPageFoundScreen(),
   );
 
-  static const String initialRoute = Routes.splash;
-
   static Route<dynamic>? onGenerateRoute(RouteSettings settings) {
     String? name = settings.name;
     final route = routes.firstWhere(
@@ -36,14 +33,13 @@ abstract class AppRouter {
       orElse: () => noPageFoundRoute,
     );
     Object? arguments = settings.arguments;
-    return MaterialPageRoute(builder: (context) => route.builder(arguments));
+    return MaterialPageRoute(
+      builder: (context) => route.builder(arguments),
+      settings: settings,
+    );
   }
 
   static List<RouteModel> routes = [
-    RouteModel(
-      name: Routes.splash,
-      builder: (arguments) => const SplashScreen(),
-    ),
     RouteModel(
       name: Routes.login,
       builder: (arguments) => const LoginScreen(),
