@@ -86,7 +86,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
             text: TextSpan(
               text: 'Already have an account? ',
               style: TextStyle(
-                color: AppColor.whiteColor.withOpacity(0.70),
+                color: AppColor.whiteColor.withAlpha(178),
                 fontFamily: AppString.fontFamily,
               ),
               children: [

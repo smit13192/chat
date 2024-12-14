@@ -53,7 +53,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        backgroundColor: AppColor.whiteColor.withOpacity(0.15),
+        backgroundColor: AppColor.whiteColor.withAlpha(39),
         elevation: 0,
         centerTitle: true,
         systemOverlayStyle: systemOverlayStyle,
@@ -71,7 +71,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         ],
       ),
       bottomNavigationBar: Material(
-        color: AppColor.whiteColor.withOpacity(0.15),
+        color: AppColor.whiteColor.withAlpha(39),
         borderRadius: BorderRadius.vertical(top: Radius.circular(2.h)),
         child: SafeArea(
           child: Row(
@@ -80,8 +80,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
               (index) {
                 final e = bottomList[index];
                 final color = index == selectedTab
-                    ? AppColor.whiteColor.withOpacity(0.80)
-                    : AppColor.whiteColor.withOpacity(0.30);
+                    ? AppColor.whiteColor.withAlpha(204)
+                    : AppColor.whiteColor.withAlpha(77);
                 return Expanded(
                   child: InkWell(
                     borderRadius:

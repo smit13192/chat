@@ -121,7 +121,7 @@ class _ChatViewState extends State<ChatView> with PostFrameCallbackMixin {
                       ? widget.chatEntity.groupImage
                       : widget.chatEntity.users[recieverUserIndex].image;
               return Container(
-                color: AppColor.whiteColor.withOpacity(0.15),
+                color: AppColor.whiteColor.withAlpha(39),
                 child: SafeArea(
                   child: Row(
                     children: [
@@ -152,7 +152,7 @@ class _ChatViewState extends State<ChatView> with PostFrameCallbackMixin {
                                 : isActive
                                     ? 'Active now'
                                     : 'The user is currently offline. Drop a message and they\'ll get back to you!',
-                            color: AppColor.whiteColor.withOpacity(0.70),
+                            color: AppColor.whiteColor.withAlpha(178),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
@@ -329,18 +329,18 @@ class MessageTile extends StatelessWidget {
             children: [
               Expanded(
                 child: Divider(
-                  color: AppColor.whiteColor.withOpacity(0.60),
+                  color: AppColor.whiteColor.withAlpha(153),
                 ),
               ),
               GapW(3.w),
               CustomText(
                 message.createdAt.toFormatedString('d, MMMM yyyy'),
-                color: AppColor.whiteColor.withOpacity(0.60),
+                color: AppColor.whiteColor.withAlpha(153),
               ),
               GapW(3.w),
               Expanded(
                 child: Divider(
-                  color: AppColor.whiteColor.withOpacity(0.60),
+                  color: AppColor.whiteColor.withAlpha(153),
                 ),
               ),
             ],
@@ -361,7 +361,7 @@ class MessageTile extends StatelessWidget {
                   margin: EdgeInsets.symmetric(vertical: 0.8.h),
                   decoration: BoxDecoration(
                     color: isUserSend
-                        ? AppColor.whiteColor.withOpacity(0.20)
+                        ? AppColor.whiteColor.withAlpha(51)
                         : AppColor.primaryColor,
                     borderRadius: BorderRadius.circular(1.h),
                   ),
@@ -381,7 +381,7 @@ class MessageTile extends StatelessWidget {
                   CustomText(
                     message.createdAt.toFormatedString('hh:mm'),
                     fontSize: 9.sp,
-                    color: AppColor.whiteColor.withOpacity(0.40),
+                    color: AppColor.whiteColor.withAlpha(102),
                   ),
               ],
             ),

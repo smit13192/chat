@@ -121,7 +121,7 @@ class GetAllChatView extends StatelessWidget {
                   : 'Hello! Feel free to start the conversation.',
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              color: AppColor.whiteColor.withOpacity(0.70),
+              color: AppColor.whiteColor.withAlpha(178),
             ),
           );
         },

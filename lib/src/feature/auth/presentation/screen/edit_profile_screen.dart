@@ -40,7 +40,7 @@ class _EditProfileScreenState extends State<EditProfileScreen>
     final authenticationProvider = context.read<AuthenticationProvider>();
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: AppColor.whiteColor.withOpacity(0.15),
+        backgroundColor: AppColor.whiteColor.withAlpha(39),
         elevation: 0,
         systemOverlayStyle: systemOverlayStyle,
         title: CustomText(

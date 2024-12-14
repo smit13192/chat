@@ -20,7 +20,7 @@ class CustomImage extends StatelessWidget {
       placeholder: (context, url) {
         return Shimmer.fromColors(
           baseColor: AppColor.blackColor,
-          highlightColor: AppColor.whiteColor.withOpacity(0.10),
+          highlightColor: AppColor.whiteColor.withAlpha(26),
           child: const SizedBox.expand(),
         );
       },

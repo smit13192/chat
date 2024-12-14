@@ -119,7 +119,7 @@ class AllUserView extends StatelessWidget {
               ),
               subtitle: CustomText(
                 user.email,
-                color: AppColor.whiteColor.withOpacity(0.70),
+                color: AppColor.whiteColor.withAlpha(178),
               ),
             );
           },

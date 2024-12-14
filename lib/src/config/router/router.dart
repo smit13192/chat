@@ -4,7 +4,7 @@ import 'package:chat/src/feature/auth/presentation/screen/login_screen.dart';
 import 'package:chat/src/feature/auth/presentation/screen/register_screen.dart';
 import 'package:chat/src/feature/home/presentation/screen/chat_screen.dart';
 import 'package:chat/src/feature/home/presentation/screen/dashboard_screen.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 
 part 'routes.dart';
 
@@ -33,7 +33,7 @@ abstract class AppRouter {
       orElse: () => noPageFoundRoute,
     );
     Object? arguments = settings.arguments;
-    return MaterialPageRoute(
+    return CupertinoPageRoute(
       builder: (context) => route.builder(arguments),
       settings: settings,
     );

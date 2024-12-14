@@ -59,29 +59,31 @@ class CustomFormField extends StatelessWidget {
       minLines: minLines,
       maxLines: maxLines,
       onFieldSubmitted: onSubmitted,
-      style: TextStyle(color: AppColor.whiteColor.withOpacity(0.9)),
+      style: TextStyle(color: AppColor.whiteColor.withAlpha(229)),
       textCapitalization: textCapitalization,
       decoration: InputDecoration(
         hintText: hintText,
-        hintStyle: TextStyle(color: AppColor.whiteColor.withOpacity(0.5)),
+        hintStyle: TextStyle(color: AppColor.whiteColor.withAlpha(128)),
         contentPadding:
             const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
         enabledBorder: getInputBorder(),
         disabledBorder: getInputBorder(),
         focusedBorder: getInputBorder(),
-        errorBorder:
-            getInputBorder(borderColor: AppColor.redColor.withOpacity(0.70)),
+        errorBorder: getInputBorder(
+          borderColor: AppColor.redColor.withAlpha(178),
+        ),
         suffixIconConstraints: suffixIconConstraints,
         errorStyle: TextStyle(
-          color: AppColor.redColor.withOpacity(0.70),
+          color: AppColor.redColor.withAlpha(178),
           fontSize: 10.sp,
         ),
-        focusedErrorBorder:
-            getInputBorder(borderColor: AppColor.redColor.withOpacity(0.70)),
+        focusedErrorBorder: getInputBorder(
+          borderColor: AppColor.redColor.withAlpha(178),
+        ),
         prefixIcon: prefixIcon,
         suffixIcon: suffixIcon,
         filled: true,
-        fillColor: AppColor.whiteColor.withOpacity(0.02),
+        fillColor: AppColor.whiteColor.withAlpha(5),
       ),
     );
   }
@@ -90,7 +92,7 @@ class CustomFormField extends StatelessWidget {
     return OutlineInputBorder(
       borderRadius: BorderRadius.circular(borderRadius),
       borderSide: BorderSide(
-        color: borderColor ?? AppColor.whiteColor.withOpacity(0.20),
+        color: borderColor ?? AppColor.whiteColor.withAlpha(51),
         width: 1.5,
       ),
     );

@@ -55,7 +55,9 @@ class PermissionService {
   }) async {
     final status = await permission.request();
     if (status == PermissionStatus.granted ||
-        status == PermissionStatus.limited) return true;
+        status == PermissionStatus.limited) {
+      return true;
+    }
     if (status == PermissionStatus.denied) {
       return false;
     }

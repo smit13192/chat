@@ -78,7 +78,7 @@ class _LoginScreenState extends State<LoginScreen> {
             text: TextSpan(
               text: 'Don\'t have an account? ',
               style: TextStyle(
-                color: AppColor.whiteColor.withOpacity(0.70),
+                color: AppColor.whiteColor.withAlpha(178),
                 fontFamily: AppString.fontFamily,
               ),
               children: [

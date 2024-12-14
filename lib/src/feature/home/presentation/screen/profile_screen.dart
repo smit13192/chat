@@ -59,7 +59,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           ),
                           CustomText(
                             authenticationProvider.user!.email,
-                            color: AppColor.whiteColor.withOpacity(0.50),
+                            color: AppColor.whiteColor.withAlpha(128),
                           ),
                           const Spacer(),
                           CustomButton(
@@ -69,10 +69,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             buttonColor: AppColor.transparent,
                             textStyle: TextStyle(
                               fontSize: 10.sp,
-                              color: AppColor.whiteColor.withOpacity(0.50),
+                              color: AppColor.whiteColor.withAlpha(128),
                             ),
                             border: Border.all(
-                              color: AppColor.whiteColor.withOpacity(0.10),
+                              color: AppColor.whiteColor.withAlpha(26),
                             ),
                           ),
                         ],

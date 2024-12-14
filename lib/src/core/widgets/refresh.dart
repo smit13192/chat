@@ -14,8 +14,8 @@ class Refresh extends StatelessWidget {
       child: SizedBox(
         child: InkWell(
           borderRadius: BorderRadius.circular(50),
-          splashColor: AppColor.blackColor.withOpacity(0.10),
-          highlightColor: AppColor.blackColor.withOpacity(0.05),
+          splashColor: AppColor.blackColor.withAlpha(26),
+          highlightColor: AppColor.blackColor.withAlpha(13),
           onTap: () => onRefresh?.call(),
           child: Padding(
             padding: EdgeInsets.all(1.h),
