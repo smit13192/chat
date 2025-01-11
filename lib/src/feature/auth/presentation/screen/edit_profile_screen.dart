@@ -2,6 +2,7 @@ import 'package:chat/main.dart';
 import 'package:chat/src/api/endpoints.dart';
 import 'package:chat/src/config/constant/app_color.dart';
 import 'package:chat/src/core/services/image_service.dart';
+import 'package:chat/src/core/utils/formz_status.dart';
 import 'package:chat/src/core/utils/post_frame_callback_mixin.dart';
 import 'package:chat/src/core/utils/validator.dart';
 import 'package:chat/src/core/widgets/custom_button.dart';
@@ -95,9 +96,18 @@ class _EditProfileScreenState extends State<EditProfileScreen>
                 hintText: 'Enter email',
               ),
               GapH(2.h),
-              CustomButton(
-                text: 'Save',
-                onPressed: () => _onSaveSubmit(context),
+              Builder(
+                builder: (context) {
+                  final isLoading =
+                      context.select<AuthenticationProvider, bool>(
+                    (provider) => provider.updateProfileFormzStatus.isLoading,
+                  );
+                  return CustomButton(
+                    text: 'Save',
+                    onPressed: () => _onSaveSubmit(context),
+                    isLoading: isLoading,
+                  );
+                },
               ),
             ],
           ),

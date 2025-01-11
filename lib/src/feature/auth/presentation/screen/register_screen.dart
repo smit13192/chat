@@ -1,5 +1,6 @@
 import 'package:chat/src/config/constant/app_color.dart';
 import 'package:chat/src/config/constant/app_string.dart';
+import 'package:chat/src/core/utils/formz_status.dart';
 import 'package:chat/src/core/utils/validator.dart';
 import 'package:chat/src/core/widgets/custom_button.dart';
 import 'package:chat/src/core/widgets/custom_form_field.dart';
@@ -71,9 +72,18 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 obscureText: true,
               ),
               GapH(2.h),
-              CustomButton(
-                text: 'Register',
-                onPressed: () => _onSubmit(context),
+              Builder(
+                builder: (context) {
+                  final isLoading =
+                      context.select<AuthenticationProvider, bool>(
+                    (provider) => provider.registerFormzStatus.isLoading,
+                  );
+                  return CustomButton(
+                    text: 'Register',
+                    onPressed: () => _onSubmit(context),
+                    isLoading: isLoading,
+                  );
+                },
               ),
             ],
           ),

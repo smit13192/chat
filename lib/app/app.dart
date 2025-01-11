@@ -15,7 +15,6 @@ class App extends StatefulWidget {
 }
 
 class _AppState extends State<App> {
-  
   @override
   void initState() {
     super.initState();
@@ -47,6 +46,10 @@ class _AppState extends State<App> {
               useMaterial3: false,
               primaryColor: AppColor.primaryColor,
               primarySwatch: AppMaterialColor.primaryColor,
+              colorScheme: ColorScheme.fromSeed(
+                seedColor: AppColor.primaryColor,
+                surface: AppColor.scaffoldColor,
+              ),
             ),
             home: widget.home,
             onGenerateRoute: AppRouter.onGenerateRoute,

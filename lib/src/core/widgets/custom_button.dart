@@ -1,4 +1,5 @@
 import 'package:chat/src/config/constant/app_color.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:sizer/sizer.dart';
 
@@ -13,6 +14,7 @@ class CustomButton extends StatelessWidget {
   final Border? border;
   final EdgeInsets? padding;
   final TextStyle? textStyle;
+  final bool isLoading;
 
   const CustomButton({
     super.key,
@@ -26,6 +28,7 @@ class CustomButton extends StatelessWidget {
     this.border,
     this.textStyle,
     this.padding,
+    this.isLoading = false,
   });
 
   @override
@@ -49,16 +52,20 @@ class CustomButton extends StatelessWidget {
             borderRadius: borderRadius ?? BorderRadius.circular(8),
           ),
           alignment: Alignment.center,
-          child: Text(
-            text,
-            style: textStyle ??
-                TextStyle(
-                  color: AppColor.whiteColor,
-                  fontWeight: FontWeight.w500,
-                  fontSize: 13.sp,
-                  letterSpacing: 1,
+          child: isLoading
+              ? const Center(
+                  child: CupertinoActivityIndicator(color: AppColor.whiteColor),
+                )
+              : Text(
+                  text,
+                  style: textStyle ??
+                      TextStyle(
+                        color: AppColor.whiteColor,
+                        fontWeight: FontWeight.w500,
+                        fontSize: 13.sp,
+                        letterSpacing: 1,
+                      ),
                 ),
-          ),
         ),
       ),
     );

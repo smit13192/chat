@@ -1,3 +1,4 @@
+import 'package:chat/src/core/widgets/loader.dart';
 import 'package:flutter/material.dart';
 
 typedef Show = bool Function();
@@ -64,11 +65,7 @@ class ScreenLoadingController {
                 color: containerColor ?? Colors.black,
                 borderRadius: BorderRadius.circular(10),
               ),
-              child: Center(
-                child: CircularProgressIndicator(
-                  color: loadingColor,
-                ),
-              ),
+              child: const Loader(),
             ),
           ),
         );

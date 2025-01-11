@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:chat/src/config/router/router.dart';
 import 'package:chat/src/core/database/storage.dart';
 import 'package:chat/src/core/extension/context_extension.dart';
-import 'package:chat/src/core/utils/screen_loading_controller.dart';
+import 'package:chat/src/core/utils/formz_status.dart';
 import 'package:chat/src/feature/auth/domain/entity/login_entity.dart';
 import 'package:chat/src/feature/auth/domain/usecase/login_usecase.dart';
 import 'package:chat/src/feature/auth/domain/usecase/profile_usecase.dart';
@@ -39,16 +39,40 @@ class AuthenticationProvider extends ChangeNotifier {
     return true;
   }
 
+  FormzStatus _loginFormzStatus = FormzStatus.pure;
+  set loginFormzStatus(FormzStatus value) {
+    _loginFormzStatus = value;
+    notifyListeners();
+  }
+
+  FormzStatus get loginFormzStatus => _loginFormzStatus;
+
+  FormzStatus _registerFormzStatus = FormzStatus.pure;
+  set registerFormzStatus(FormzStatus value) {
+    _registerFormzStatus = value;
+    notifyListeners();
+  }
+
+  FormzStatus get registerFormzStatus => _registerFormzStatus;
+
+  FormzStatus _updateProfileFormzStatus = FormzStatus.pure;
+  set updateProfileFormzStatus(FormzStatus value) {
+    _updateProfileFormzStatus = value;
+    notifyListeners();
+  }
+
+  FormzStatus get updateProfileFormzStatus => _updateProfileFormzStatus;
+
   Future<void> login(
     BuildContext context, {
     required String email,
     required String password,
   }) async {
-    ScreenLoadingController.instance.show(context);
     final navigatorState = Navigator.of(context);
+    loginFormzStatus = FormzStatus.loading;
     final result =
         await loginUseCase(LoginParams(email: email, password: password));
-    ScreenLoadingController.instance.hide();
+    loginFormzStatus = FormzStatus.pure;
 
     if (result.isFailure) {
       if (!context.mounted) return;
@@ -72,12 +96,12 @@ class AuthenticationProvider extends ChangeNotifier {
     required String email,
     required String password,
   }) async {
-    ScreenLoadingController.instance.show(context);
+    registerFormzStatus = FormzStatus.loading;
     final navigatorState = Navigator.of(context);
     final result = await registerUseCase(
       RegisterParams(username: username, email: email, password: password),
     );
-    ScreenLoadingController.instance.hide();
+    registerFormzStatus = FormzStatus.pure;
 
     if (result.isFailure) {
       if (!context.mounted) return;
@@ -106,11 +130,11 @@ class AuthenticationProvider extends ChangeNotifier {
     BuildContext context, {
     required String username,
   }) async {
-    ScreenLoadingController.instance.show(context);
+    updateProfileFormzStatus = FormzStatus.loading;
     final result = await updateProfileUseCase(
       UpdateProfileParams(username: username, image: updatedImage?.path),
     );
-    ScreenLoadingController.instance.hide();
+    updateProfileFormzStatus = FormzStatus.pure;
     if (result.isFailure) {
       if (!context.mounted) return;
       context.showErrorSnackBar(result.failure.message);
