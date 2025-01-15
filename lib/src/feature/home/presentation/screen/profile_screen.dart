@@ -7,6 +7,7 @@ import 'package:chat/src/core/widgets/custom_text.dart';
 import 'package:chat/src/core/widgets/gap.dart';
 import 'package:chat/src/feature/auth/presentation/provider/authentication_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
 
@@ -89,9 +90,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   void _onEditProfileTap(BuildContext context) {
-    Navigator.pushNamed(
-      context,
-      Routes.editProfile,
-    );
+    context.push(Routes.editProfile);
   }
 }

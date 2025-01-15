@@ -20,6 +20,7 @@ import 'package:chat/src/feature/home/domain/entity/message_entity.dart';
 import 'package:chat/src/feature/home/presentation/provider/chat_provider.dart';
 import 'package:chat/src/feature/home/presentation/provider/home_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:lazy_load_scrollview/lazy_load_scrollview.dart';
 import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
@@ -123,11 +124,12 @@ class _ChatViewState extends State<ChatView> with PostFrameCallbackMixin {
               return Container(
                 color: AppColor.whiteColor.withAlpha(39),
                 child: SafeArea(
+                  bottom: false,
                   child: Row(
                     children: [
                       GapW(3.w),
                       GestureDetector(
-                        onTap: () => Navigator.pop(context),
+                        onTap: () => context.pop(),
                         child: Icon(
                           Icons.arrow_back,
                           color: AppColor.whiteColor,
@@ -188,38 +190,96 @@ class _ChatViewState extends State<ChatView> with PostFrameCallbackMixin {
               },
             ),
           ),
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 1.h),
-            child: CustomFormField(
-              focusNode: focusNode,
-              textCapitalization: TextCapitalization.sentences,
-              controller: messageController,
-              minLines: 1,
-              maxLines: 3,
-              hintText: 'Enter message',
-              onSubmitted: (value) =>
-                  _onFieldSubmit(context, value, widget.chatEntity.chatId),
-              suffixIconConstraints: const BoxConstraints(),
-              suffixIcon: GestureDetector(
-                onTap: () => _onFieldSubmit(
-                  context,
-                  messageController.text,
-                  widget.chatEntity.chatId,
-                ),
-                child: Container(
-                  margin: EdgeInsets.only(right: 2.w, top: 5, bottom: 5),
-                  padding:
-                      const EdgeInsets.symmetric(vertical: 10, horizontal: 15),
-                  decoration: BoxDecoration(
-                    color: AppColor.primaryColor,
-                    borderRadius: BorderRadius.circular(7),
-                  ),
-                  child: Icon(
-                    Icons.send,
-                    color: AppColor.whiteColor,
-                    size: 15.sp,
-                  ),
-                ),
+          SafeArea(
+            top: false,
+            child: Padding(
+              padding:
+                  EdgeInsets.only(left: 4.w, right: 4.w, bottom: 2.h, top: 1.h),
+              child: Builder(
+                builder: (context) {
+                  final replyToMessage =
+                      context.select<ChatProvider, MessageEntity?>(
+                    (value) => value.replyToMessage,
+                  );
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      if (replyToMessage != null) ...[
+                        Padding(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 20,
+                            vertical: 2.h,
+                          ),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: CustomText(
+                                  AESCipherService.decrypt(
+                                    replyToMessage.message,
+                                    replyToMessage.messageIv,
+                                  ),
+                                  color: AppColor.whiteColor.withAlpha(127),
+                                  fontSize: 12.sp,
+                                ),
+                              ),
+                              GestureDetector(
+                                onTap: () => context
+                                    .read<ChatProvider>()
+                                    .replyToMessage = null,
+                                child: Transform.translate(
+                                  offset: const Offset(0, 2),
+                                  child: Icon(
+                                    Icons.close,
+                                    size: 16.sp,
+                                    color: AppColor.whiteColor.withAlpha(127),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                      CustomFormField(
+                        focusNode: focusNode,
+                        textCapitalization: TextCapitalization.sentences,
+                        controller: messageController,
+                        minLines: 1,
+                        maxLines: 3,
+                        hintText: 'Enter message',
+                        onSubmitted: (value) => _onFieldSubmit(
+                          context,
+                          value,
+                          widget.chatEntity.chatId,
+                        ),
+                        suffixIconConstraints: const BoxConstraints(),
+                        suffixIcon: GestureDetector(
+                          onTap: () => _onFieldSubmit(
+                            context,
+                            messageController.text,
+                            widget.chatEntity.chatId,
+                          ),
+                          child: Container(
+                            margin:
+                                EdgeInsets.only(right: 2.w, top: 5, bottom: 5),
+                            padding: const EdgeInsets.symmetric(
+                              vertical: 10,
+                              horizontal: 15,
+                            ),
+                            decoration: BoxDecoration(
+                              color: AppColor.primaryColor,
+                              borderRadius: BorderRadius.circular(7),
+                            ),
+                            child: Icon(
+                              Icons.send,
+                              color: AppColor.whiteColor,
+                              size: 15.sp,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  );
+                },
               ),
             ),
           ),
@@ -248,13 +308,15 @@ class MessageBuild extends StatelessWidget {
     final chats = context.watch<ChatProvider>().messages;
     return LazyLoadScrollView(
       onEndOfPage: () => _onPageOver(context, chatId),
-      child: ListView.builder(
+      child: ListView.separated(
+        separatorBuilder: (context, index) => GapH(1.6.h),
         padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 1.h),
         reverse: true,
         itemCount: chats.length,
         itemBuilder: (context, index) {
           final message = chats.elementAt(index);
           return MessageTile(
+            key: ValueKey(message.messageId),
             message: message,
             userId: userId,
             chats: chats,
@@ -322,6 +384,8 @@ class MessageTile extends StatelessWidget {
       isDateShow = true;
     }
     return Column(
+      crossAxisAlignment:
+          isUserSend ? CrossAxisAlignment.end : CrossAxisAlignment.start,
       children: [
         if (isDateShow) ...[
           GapH(1.h),
@@ -345,50 +409,56 @@ class MessageTile extends StatelessWidget {
               ),
             ],
           ),
-          GapH(1.h),
+          GapH(1.8.h),
         ],
-        Align(
-          alignment: isUserSend ? Alignment.centerRight : Alignment.centerLeft,
-          child: GestureDetector(
-            onDoubleTap: () => isUserSend ? onMessageDoubleTap(message) : null,
-            child: Column(
-              crossAxisAlignment: isUserSend
-                  ? CrossAxisAlignment.end
-                  : CrossAxisAlignment.start,
-              children: [
-                Container(
-                  padding: EdgeInsets.all(3.w),
-                  margin: EdgeInsets.symmetric(vertical: 0.8.h),
-                  decoration: BoxDecoration(
-                    color: isUserSend
-                        ? AppColor.whiteColor.withAlpha(51)
-                        : AppColor.primaryColor,
-                    borderRadius: BorderRadius.circular(1.h),
-                  ),
-                  child: ConstrainedBox(
-                    constraints: BoxConstraints(maxWidth: 70.w),
-                    child: CustomText(
-                      AESCipherService.decrypt(
-                        message.message,
-                        message.messageIv,
-                      ),
-                      color: AppColor.whiteColor,
-                      fontSize: 13.sp,
+        SwipeAnimatatedWidget(
+          isRight: !isUserSend,
+          isLeft: isUserSend,
+          onLeftSwipe: () => _onSwipe(context, message),
+          onRightSwipe: () => _onSwipe(context, message),
+          child: Align(
+            alignment:
+                isUserSend ? Alignment.centerRight : Alignment.centerLeft,
+            child: GestureDetector(
+              onDoubleTap: () =>
+                  isUserSend ? onMessageDoubleTap(message) : null,
+              child: Container(
+                padding: EdgeInsets.all(3.w),
+                decoration: BoxDecoration(
+                  color: isUserSend
+                      ? AppColor.whiteColor.withAlpha(51)
+                      : AppColor.primaryColor,
+                  borderRadius: BorderRadius.circular(1.h),
+                ),
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(maxWidth: 70.w),
+                  child: CustomText(
+                    AESCipherService.decrypt(
+                      message.message,
+                      message.messageIv,
                     ),
+                    color: AppColor.whiteColor,
+                    fontSize: 13.sp,
                   ),
                 ),
-                if (isTimeShow)
-                  CustomText(
-                    message.createdAt.toFormatedString('hh:mm'),
-                    fontSize: 9.sp,
-                    color: AppColor.whiteColor.withAlpha(102),
-                  ),
-              ],
+              ),
             ),
           ),
         ),
+        if (isTimeShow) ...[
+          GapH(0.8.h),
+          CustomText(
+            message.createdAt.toFormatedString('hh:mm'),
+            fontSize: 9.sp,
+            color: AppColor.whiteColor.withAlpha(102),
+          ),
+        ],
       ],
     );
+  }
+
+  void _onSwipe(BuildContext context, MessageEntity message) {
+    context.read<ChatProvider>().replyToMessage = message;
   }
 }
 
@@ -420,7 +490,7 @@ class DeleteMessageDialog extends StatelessWidget {
               child: CustomButton(
                 text: 'Delete',
                 onPressed: () {
-                  Navigator.of(context).pop(true);
+                  context.pop(true);
                 },
               ),
             ),
@@ -428,5 +498,70 @@ class DeleteMessageDialog extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+class SwipeAnimatatedWidget extends StatefulWidget {
+  final Widget child;
+  final void Function()? onRightSwipe;
+  final void Function()? onLeftSwipe;
+  final bool isRight;
+  final bool isLeft;
+
+  const SwipeAnimatatedWidget({
+    super.key,
+    required this.child,
+    this.onLeftSwipe,
+    this.onRightSwipe,
+    this.isRight = false,
+    this.isLeft = false,
+  });
+
+  @override
+  State<SwipeAnimatatedWidget> createState() => SwipeAnimatatedWidgetState();
+}
+
+class SwipeAnimatatedWidgetState extends State<SwipeAnimatatedWidget> {
+  double position = 0;
+  double maxPosition = 10.w;
+
+  @override
+  Widget build(BuildContext context) {
+    return Transform.translate(
+      offset: Offset(position, 0),
+      child: GestureDetector(
+        onPanUpdate: (details) => _onPanUpdate(details),
+        onPanEnd: (details) => _onPanEnd(details),
+        child: widget.child,
+      ),
+    );
+  }
+
+  void _onPanUpdate(details) {
+    double dxValue = details.delta.dx;
+    if (position >= maxPosition && widget.isRight && dxValue > 0) return;
+    if (position <= -maxPosition && widget.isLeft && dxValue < 0) return;
+    if (widget.isRight && dxValue > 0) position += details.delta.dx;
+    if (widget.isRight && dxValue < 0) {
+      if (position < 0 || position == 0) return;
+      position += details.delta.dx;
+    }
+    if (widget.isLeft && dxValue < 0) position += details.delta.dx;
+    if (widget.isLeft && dxValue > 0) {
+      if (position > 0 || position == 0) return;
+      position += details.delta.dx;
+    }
+    setState(() {});
+  }
+
+  void _onPanEnd(details) {
+    if (widget.isRight && position >= maxPosition) {
+      widget.onRightSwipe?.call();
+    }
+    if (widget.isLeft && position <= -maxPosition) {
+      widget.onLeftSwipe?.call();
+    }
+    position = 0;
+    setState(() {});
   }
 }

@@ -8,6 +8,7 @@ class MessageModel extends MessageEntity {
     required super.sender,
     required super.chat,
     required super.messageIv,
+    super.replyToMessage,
     required super.createdAt,
     required super.updatedAt,
   });
@@ -19,6 +20,10 @@ class MessageModel extends MessageEntity {
       sender: UserModel.fromMap(map['sender']),
       chat: map['chat'],
       messageIv: map['messageIv'],
+      replyToMessage:
+          map['replyToMessage'] != null && map['replyToMessage'] is Map
+              ? MessageModel.fromMap(map['replyToMessage'])
+              : null,
       createdAt: DateTime.parse(map['createdAt']).toLocal(),
       updatedAt: DateTime.parse(map['updatedAt']).toLocal(),
     );

@@ -4,6 +4,7 @@ import 'package:chat/src/config/constant/app_color.dart';
 import 'package:chat/src/config/router/router.dart';
 import 'package:chat/src/core/database/storage.dart';
 import 'package:chat/src/core/services/aes_cipher_service.dart';
+import 'package:chat/src/core/services/socket_service.dart';
 import 'package:chat/src/core/utils/formz_status.dart';
 import 'package:chat/src/core/utils/post_frame_callback_mixin.dart';
 import 'package:chat/src/core/widgets/custom_text.dart';
@@ -13,6 +14,7 @@ import 'package:chat/src/feature/home/domain/entity/chat_entity.dart';
 import 'package:chat/src/feature/home/presentation/provider/home_provider.dart';
 import 'package:chat/src/feature/home/presentation/screen/chat_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
 
@@ -36,6 +38,7 @@ class _HomeViewState extends State<HomeView> with PostFrameCallbackMixin {
   @override
   void onPostFrameCallback() {
     init();
+    SocketService.instance.socketInit();
     context.read<HomeProvider>().emitActiveUser();
     context.read<HomeProvider>().listenNewMessage();
     context.read<HomeProvider>().listenDeleteMessage();
@@ -130,10 +133,9 @@ class GetAllChatView extends StatelessWidget {
   }
 
   void _onChatTap(BuildContext context, ChatEntity chat) {
-    Navigator.pushNamed(
-      context,
+    context.push(
       Routes.chat,
-      arguments: ChatScreenParmas(chatEnity: chat),
+      extra: ChatScreenParmas(chatEnity: chat),
     );
   }
 

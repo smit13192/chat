@@ -7,6 +7,7 @@ class MessageEntity extends Equatable {
   final UserEntity sender;
   final String chat;
   final String messageIv;
+  final MessageEntity? replyToMessage;
   final DateTime createdAt;
   final DateTime updatedAt;
 
@@ -16,11 +17,20 @@ class MessageEntity extends Equatable {
     required this.sender,
     required this.chat,
     required this.messageIv,
+    this.replyToMessage,
     required this.createdAt,
     required this.updatedAt,
   });
 
   @override
-  List<Object?> get props =>
-      [messageId, message, sender, chat, messageIv, createdAt, updatedAt];
+  List<Object?> get props => [
+        messageId,
+        message,
+        sender,
+        chat,
+        messageIv,
+        replyToMessage,
+        createdAt,
+        updatedAt,
+      ];
 }

@@ -10,6 +10,7 @@ import 'package:chat/src/feature/auth/domain/usecase/profile_usecase.dart';
 import 'package:chat/src/feature/auth/domain/usecase/register_usecase.dart';
 import 'package:chat/src/feature/auth/domain/usecase/update_profile_usecase.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 class AuthenticationProvider extends ChangeNotifier {
   LoginUseCase loginUseCase;
@@ -23,6 +24,8 @@ class AuthenticationProvider extends ChangeNotifier {
     required this.profileUseCase,
     required this.updateProfileUseCase,
   });
+
+  bool get isAuthenticated => user != null;
 
   UserEntity? user;
   File? updatedImage;
@@ -68,7 +71,7 @@ class AuthenticationProvider extends ChangeNotifier {
     required String email,
     required String password,
   }) async {
-    final navigatorState = Navigator.of(context);
+    final router = GoRouter.of(context);
     loginFormzStatus = FormzStatus.loading;
     final result =
         await loginUseCase(LoginParams(email: email, password: password));
@@ -87,7 +90,7 @@ class AuthenticationProvider extends ChangeNotifier {
     ]);
     if (!context.mounted) return;
     context.showSuccessSnackBar('User logged in successfully');
-    navigatorState.pushNamedAndRemoveUntil(Routes.dashboard, (route) => false);
+    router.go(Routes.dashboard);
   }
 
   Future<void> register(
@@ -97,7 +100,7 @@ class AuthenticationProvider extends ChangeNotifier {
     required String password,
   }) async {
     registerFormzStatus = FormzStatus.loading;
-    final navigatorState = Navigator.of(context);
+    final router = GoRouter.of(context);
     final result = await registerUseCase(
       RegisterParams(username: username, email: email, password: password),
     );
@@ -111,7 +114,7 @@ class AuthenticationProvider extends ChangeNotifier {
 
     if (!context.mounted) return;
     context.showSuccessSnackBar(result.data);
-    navigatorState.pushNamedAndRemoveUntil(Routes.login, (route) => false);
+    router.go(Routes.login);
   }
 
   Future<void> getUserProfile() async {

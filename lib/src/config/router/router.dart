@@ -1,65 +1,65 @@
+import 'package:chat/locator.dart';
 import 'package:chat/src/core/screens/no_page_found_screen.dart';
+import 'package:chat/src/feature/auth/presentation/provider/authentication_provider.dart';
 import 'package:chat/src/feature/auth/presentation/screen/edit_profile_screen.dart';
 import 'package:chat/src/feature/auth/presentation/screen/login_screen.dart';
 import 'package:chat/src/feature/auth/presentation/screen/register_screen.dart';
 import 'package:chat/src/feature/home/presentation/screen/chat_screen.dart';
 import 'package:chat/src/feature/home/presentation/screen/dashboard_screen.dart';
+import 'package:chat/src/feature/splash/presentation/screen/splash_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 part 'routes.dart';
 
-typedef RouteBuilder = Widget Function(Object? arguments);
-
-class RouteModel {
-  String name;
-  RouteBuilder builder;
-
-  RouteModel({
-    required this.name,
-    required this.builder,
-  });
+class AppRouterNavigationKey {
+  static final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 }
 
-abstract class AppRouter {
-  static RouteModel noPageFoundRoute = RouteModel(
-    name: Routes.noPageFound,
-    builder: (arguments) => const NoPageFoundScreen(),
+class AppRouter {
+  static final GoRouter router = GoRouter(
+    navigatorKey: AppRouterNavigationKey.navigatorKey,
+    debugLogDiagnostics: true,
+    routes: <RouteBase>[
+      GoRoute(
+        path: Routes.splashScreen,
+        builder: (context, state) => const SplashScreen(),
+      ),
+      GoRoute(
+        path: Routes.login,
+        builder: (context, state) => const LoginScreen(),
+      ),
+      GoRoute(
+        path: Routes.register,
+        builder: (context, state) => const RegisterScreen(),
+      ),
+      GoRoute(
+        path: Routes.editProfile,
+        builder: (context, state) => const EditProfileScreen(),
+      ),
+      GoRoute(
+        path: Routes.dashboard,
+        builder: (context, state) => const DashboardScreen(),
+      ),
+      GoRoute(
+        path: Routes.chat,
+        builder: (context, state) => ChatScreen(
+          params: state.extra as ChatScreenParmas,
+        ),
+      ),
+    ],
+    errorBuilder: (context, state) => const NoPageFoundScreen(),
+    redirect: (context, state) {
+      final authProvider = locator<AuthenticationProvider>();
+      final isAuthenticated = authProvider.isAuthenticated;
+      if (Routes.privateRoutes.contains(state.matchedLocation) &&
+          !isAuthenticated) {
+        return Routes.login;
+      }
+      if (state.matchedLocation == Routes.login && isAuthenticated) {
+        return Routes.dashboard;
+      }
+      return null;
+    },
   );
-
-  static Route<dynamic>? onGenerateRoute(RouteSettings settings) {
-    String? name = settings.name;
-    final route = routes.firstWhere(
-      (element) => element.name == name,
-      orElse: () => noPageFoundRoute,
-    );
-    Object? arguments = settings.arguments;
-    return MaterialPageRoute(
-      builder: (context) => route.builder(arguments),
-      settings: settings,
-    );
-  }
-
-  static List<RouteModel> routes = [
-    RouteModel(
-      name: Routes.login,
-      builder: (arguments) => const LoginScreen(),
-    ),
-    RouteModel(
-      name: Routes.register,
-      builder: (arguments) => const RegisterScreen(),
-    ),
-    RouteModel(
-      name: Routes.dashboard,
-      builder: (arguments) => const DashboardScreen(),
-    ),
-    RouteModel(
-      name: Routes.chat,
-      builder: (arguments) =>
-          ChatScreen(params: (arguments as ChatScreenParmas)),
-    ),
-    RouteModel(
-      name: Routes.editProfile,
-      builder: (arguments) => const EditProfileScreen(),
-    ),
-  ];
 }

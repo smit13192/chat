@@ -10,6 +10,7 @@ import 'package:chat/src/core/widgets/gap.dart';
 import 'package:chat/src/feature/auth/presentation/provider/authentication_provider.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
 
@@ -118,6 +119,6 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   void _onRegisterTap(BuildContext context) {
-    Navigator.pushNamed(context, Routes.register);
+    GoRouter.of(context).push(Routes.register);
   }
 }

@@ -1,9 +1,6 @@
 import 'package:chat/app/app.dart';
 import 'package:chat/locator.dart';
 import 'package:chat/src/core/database/storage.dart';
-import 'package:chat/src/feature/auth/presentation/provider/authentication_provider.dart';
-import 'package:chat/src/feature/auth/presentation/screen/login_screen.dart';
-import 'package:chat/src/feature/home/presentation/screen/dashboard_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
@@ -33,6 +30,5 @@ Future<void> main(List<String> args) async {
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
   await init();
-  bool isLogin = await locator<AuthenticationProvider>().checkIsLogin();
-  runApp(App(home: isLogin ? const DashboardScreen() : const LoginScreen()));
+  runApp(const App());
 }

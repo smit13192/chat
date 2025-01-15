@@ -7,6 +7,8 @@ import 'package:chat/src/core/extension/context_extension.dart';
 import 'package:chat/src/core/services/socket_service.dart';
 import 'package:chat/src/core/utils/formz_status.dart';
 import 'package:chat/src/core/utils/screen_loading_controller.dart';
+import 'package:chat/src/core/utils/snackbar_controller.dart';
+import 'package:chat/src/core/widgets/message_notification_widget.dart';
 import 'package:chat/src/feature/auth/domain/entity/login_entity.dart';
 import 'package:chat/src/feature/home/data/model/chat_model.dart';
 import 'package:chat/src/feature/home/data/model/message_model.dart';
@@ -17,6 +19,7 @@ import 'package:chat/src/feature/home/domain/usecase/get_all_user_chat_usecase.d
 import 'package:chat/src/feature/home/domain/usecase/get_all_user_usecase.dart';
 import 'package:chat/src/feature/home/presentation/screen/chat_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 class HomeProvider extends ChangeNotifier {
   GetAllUserUseCase getAllUserUseCase;
@@ -63,12 +66,6 @@ class HomeProvider extends ChangeNotifier {
         },
       ),
     );
-    SocketService.instance.addEmitter(
-      SocketEmitter(
-        event: 'send-user-id',
-        callBack: () => Storage.instance.getId() ?? '',
-      ),
-    );
   }
 
   Future<void> getAllUser({
@@ -99,7 +96,7 @@ class HomeProvider extends ChangeNotifier {
     BuildContext context, {
     required String recieverId,
   }) async {
-    final navigatorState = Navigator.of(context);
+    final router = GoRouter.of(context);
     ScreenLoadingController.instance.show(context);
     final result = await accessChatUseCase(recieverId);
     ScreenLoadingController.instance.hide();
@@ -108,9 +105,9 @@ class HomeProvider extends ChangeNotifier {
       context.showErrorSnackBar(result.failure.message);
       return;
     }
-    navigatorState.pushNamed(
+    router.push(
       Routes.chat,
-      arguments: ChatScreenParmas(chatEnity: result.data),
+      extra: ChatScreenParmas(chatEnity: result.data),
     );
   }
 
@@ -139,17 +136,53 @@ class HomeProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  String? getChatId() {
+    final BuildContext? context =
+        AppRouterNavigationKey.navigatorKey.currentContext;
+    if (context != null) {
+      final GoRouterState? state = GoRouter.of(context).state;
+      if (state == null) return null;
+      if (state.uri.toString().startsWith(Routes.chat)) {
+        final params = state.extra as ChatScreenParmas;
+        return params.chatEnity.chatId;
+      }
+    }
+    return null;
+  }
+
   void listenNewMessage() {
     SocketService.instance.add(
       SocketListner(
         event: 'new-message',
         listner: (data) {
           if (data == null) return;
-          final message = MessageModel.fromMap(data as Map<String, dynamic>);
+          final chat =
+              ChatModel.fromMap((data as Map<String, dynamic>)['chat']);
+          final currentChatId = getChatId();
+          showMessageSnackBar(currentChatId, chat);
+
+          final message = MessageModel.fromMap((data)['message']);
           liveMessage.add(message);
           changeLastSendMessage(message);
         },
       ),
+    );
+  }
+
+  void showMessageSnackBar(String? currentChatId, ChatEntity chat) {
+    final userId = Storage.instance.getId();
+    if (userId == null) return;
+    if (currentChatId == chat.chatId) return;
+    if (userId == chat.lastMessage?.sender.userId) return;
+    SnackbarController.showSnackbar(
+      transitionType: TransitionType.up,
+      builder: (context, dismiss) {
+        return MessageNotificationWidget(
+          chat: chat,
+          userId: userId,
+          dismiss: dismiss,
+        );
+      },
     );
   }
 

@@ -40,7 +40,7 @@ class CustomButton extends StatelessWidget {
       child: InkWell(
         highlightColor: AppColor.transparent,
         splashColor: AppColor.buttonSplashColor,
-        onTap: onPressed,
+        onTap: isLoading ? null : onPressed,
         borderRadius: borderRadius ?? BorderRadius.circular(8),
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 200),

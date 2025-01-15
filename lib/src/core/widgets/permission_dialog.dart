@@ -2,6 +2,7 @@ import 'package:chat/src/config/constant/app_color.dart';
 import 'package:chat/src/core/widgets/custom_button.dart';
 import 'package:chat/src/core/widgets/custom_text.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 class PermissionDialog extends StatelessWidget {
@@ -44,7 +45,7 @@ class PermissionDialog extends StatelessWidget {
                 text: 'Open App Settings',
                 onPressed: () {
                   openAppSettings();
-                  Navigator.of(context).pop();
+                  context.pop();
                 },
               ),
             ),

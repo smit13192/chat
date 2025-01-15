@@ -1,4 +1,5 @@
 import 'package:chat/src/api/endpoints.dart';
+import 'package:chat/src/core/database/storage.dart';
 import 'package:chat/src/core/services/network_service.dart';
 import 'package:equatable/equatable.dart';
 import 'package:socket_io_client/socket_io_client.dart';
@@ -30,32 +31,41 @@ class SocketEmitter extends Equatable {
 }
 
 class SocketService {
-  late Socket _socket;
+  Socket? _socket;
 
   NetworkService networkService = NetworkService.instance;
 
-  SocketService._() {
+  SocketService._();
+
+  void socketInit() {
+    disconnect();
     _socket = io(
       Endpoints.baseUrl,
-      OptionBuilder().setTransports(['websocket']).disableAutoConnect().build(),
+      OptionBuilder()
+          .setTransports(['websocket'])
+          .setExtraHeaders({
+            'Authorization': 'Bearer ${Storage.instance.getToken()}',
+          })
+          .disableAutoConnect()
+          .build(),
     );
+    _socket?.connect();
 
     NetworkService.instance.internetStream.listen(
       (event) {
-        if (event && _socket.disconnected) {
-          _socket.connect();
+        if (event && _socket?.disconnected == true) {
+          _socket?.connect();
           for (SocketListner listner in listners) {
-            _socket.on(listner.event, listner.listner);
+            _socket?.on(listner.event, listner.listner);
           }
           for (SocketEmitter emmiter in emitters) {
-            _socket.emit(emmiter.event, emmiter.callBack());
+            _socket?.emit(emmiter.event, emmiter.callBack());
           }
-        } else if (!event && _socket.connected) {
-          _socket.disconnect();
+        } else if (!event && _socket?.connected == true) {
+          _socket?.disconnect();
         }
       },
     );
-    _socket.connect();
   }
 
   static SocketService instance = SocketService._();
@@ -64,31 +74,31 @@ class SocketService {
   Set<SocketEmitter> emitters = {};
 
   void emit(String event, [Object? argument]) {
-    if (_socket.disconnected) {
-      _socket.connect();
+    if (_socket?.disconnected == true) {
+      _socket?.connect();
     }
-    _socket.emit(event, argument);
+    _socket?.emit(event, argument);
   }
 
   void addEmitter(SocketEmitter emitter) {
-    if (_socket.disconnected) {
-      _socket.connect();
+    if (_socket?.disconnected == true) {
+      _socket?.connect();
     }
     emitters.add(emitter);
     emit(emitter.event, emitter.callBack());
   }
 
   void add(SocketListner listner) {
-    if (_socket.disconnected) {
-      _socket.connect();
+    if (_socket?.disconnected == true) {
+      _socket?.connect();
     }
     listners.add(listner);
-    _socket.on(listner.event, listner.listner);
+    _socket?.on(listner.event, listner.listner);
   }
 
   void disconnect() {
-    if (_socket.connected) {
-      _socket.disconnect();
+    if (_socket?.connected == true) {
+      _socket?.disconnect();
     }
   }
 }

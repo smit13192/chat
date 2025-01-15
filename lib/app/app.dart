@@ -7,8 +7,7 @@ import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:sizer/sizer.dart';
 
 class App extends StatefulWidget {
-  final Widget home;
-  const App({super.key, required this.home});
+  const App({super.key});
 
   @override
   State<App> createState() => _AppState();
@@ -26,7 +25,8 @@ class _AppState extends State<App> {
     return AppProvider(
       child: Sizer(
         builder: (context, orientation, deviceType) {
-          return MaterialApp(
+          return MaterialApp.router(
+            routerConfig: AppRouter.router,
             title: AppString.appName,
             debugShowCheckedModeBanner: false,
             scrollBehavior: ScrollConfiguration.of(context).copyWith(
@@ -51,8 +51,6 @@ class _AppState extends State<App> {
                 surface: AppColor.scaffoldColor,
               ),
             ),
-            home: widget.home,
-            onGenerateRoute: AppRouter.onGenerateRoute,
           );
         },
       ),

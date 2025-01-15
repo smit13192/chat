@@ -26,6 +26,13 @@ class ChatProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  MessageEntity? _replayToMessage;
+  MessageEntity? get replyToMessage => _replayToMessage;
+  set replyToMessage(MessageEntity? message) {
+    _replayToMessage = message;
+    notifyListeners();
+  }
+
   Future<void> getChatMessage(String chatId, {bool isFromMain = false}) async {
     int limit = 50;
     String? lastMessageId;
@@ -61,6 +68,7 @@ class ChatProvider extends ChangeNotifier {
         chatId: chatId,
         message: encryptedData.encryptedData,
         messageIv: encryptedData.iv,
+        replyToMessage: _replayToMessage?.messageId,
       ),
     );
     if (result.isFailure) return;
