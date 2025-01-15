@@ -8,7 +8,7 @@ class Validator {
   );
 
   static final RegExp _usernameRegExp = RegExp(
-    r'^[a-zA-Z0-9_]{3,16}$',
+    r'^[a-zA-Z0-9_\s]{3,16}$',
   );
 
   static String? validateEmail(String email) {

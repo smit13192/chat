@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "543372090526",
+    "project_id": "ms-chat-4f458",
+    "storage_bucket": "ms-chat-4f458.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:543372090526:android:7c0c378114a12dbe196f8f",
+        "android_client_info": {
+          "package_name": "com.ms.chat"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBkaduEX3oBGFXM5IWWsyC8wSA4IGo0Als"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
