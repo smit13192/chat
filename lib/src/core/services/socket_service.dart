@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:chat/src/api/endpoints.dart';
 import 'package:chat/src/core/database/storage.dart';
 import 'package:chat/src/core/services/network_service.dart';
@@ -32,6 +34,7 @@ class SocketEmitter extends Equatable {
 
 class SocketService {
   Socket? _socket;
+  StreamSubscription<bool>? _internetSubscription;
 
   NetworkService networkService = NetworkService.instance;
 
@@ -39,19 +42,21 @@ class SocketService {
 
   void socketInit() {
     disconnect();
+    final token = Storage.instance.getToken();
     _socket = io(
       Endpoints.baseUrl,
       OptionBuilder()
           .setTransports(['websocket'])
           .setExtraHeaders({
-            'Authorization': 'Bearer ${Storage.instance.getToken()}',
+            'Authorization': 'Bearer $token',
           })
           .disableAutoConnect()
+          .enableForceNew()
           .build(),
     );
     _socket?.connect();
 
-    NetworkService.instance.internetStream.listen(
+    _internetSubscription = NetworkService.instance.internetStream.listen(
       (event) {
         if (event && _socket?.disconnected == true) {
           _socket?.connect();
@@ -100,6 +105,9 @@ class SocketService {
     if (_socket?.connected == true) {
       _socket?.disconnect();
       _socket = null;
+      _internetSubscription?.cancel();
+      emitters.clear();
+      listners.clear();
     }
   }
 }
