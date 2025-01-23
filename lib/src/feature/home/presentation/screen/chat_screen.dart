@@ -193,8 +193,7 @@ class _ChatViewState extends State<ChatView> with PostFrameCallbackMixin {
           SafeArea(
             top: false,
             child: Padding(
-              padding:
-                  EdgeInsets.only(left: 4.w, right: 4.w, bottom: 2.h, top: 1.h),
+              padding: EdgeInsets.only(bottom: 2.h, top: 1.h),
               child: Builder(
                 builder: (context) {
                   final replyToMessage =
@@ -205,23 +204,42 @@ class _ChatViewState extends State<ChatView> with PostFrameCallbackMixin {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       if (replyToMessage != null) ...[
+                        Divider(
+                          color: AppColor.whiteColor.withAlpha(75),
+                        ),
                         Padding(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 20,
-                            vertical: 2.h,
+                          padding: EdgeInsets.only(
+                            left: 20 + 4.w,
+                            right: 20 + 4.w,
+                            bottom: 2.h,
+                            top: 1.h,
                           ),
                           child: Row(
                             children: [
                               Expanded(
-                                child: CustomText(
-                                  AESCipherService.decrypt(
-                                    replyToMessage.message,
-                                    replyToMessage.messageIv,
-                                  ),
-                                  color: AppColor.whiteColor.withAlpha(127),
-                                  fontSize: 12.sp,
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    CustomText(
+                                      'Reply to @${replyToMessage.sender.username}',
+                                      color: AppColor.whiteColor.withAlpha(127),
+                                      fontSize: 11.sp,
+                                    ),
+                                    const GapH(3),
+                                    CustomText(
+                                      AESCipherService.decrypt(
+                                        replyToMessage.message,
+                                        replyToMessage.messageIv,
+                                      ),
+                                      color: AppColor.whiteColor.withAlpha(75),
+                                      fontSize: 10.sp,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ],
                                 ),
                               ),
+                              GapW(3.w),
                               GestureDetector(
                                 onTap: () => context
                                     .read<ChatProvider>()
@@ -239,40 +257,49 @@ class _ChatViewState extends State<ChatView> with PostFrameCallbackMixin {
                           ),
                         ),
                       ],
-                      CustomFormField(
-                        focusNode: focusNode,
-                        textCapitalization: TextCapitalization.sentences,
-                        controller: messageController,
-                        minLines: 1,
-                        maxLines: 3,
-                        hintText: 'Enter message',
-                        onSubmitted: (value) => _onFieldSubmit(
-                          context,
-                          value,
-                          widget.chatEntity.chatId,
+                      Padding(
+                        padding: EdgeInsets.only(
+                          left: 4.w,
+                          right: 4.w,
                         ),
-                        suffixIconConstraints: const BoxConstraints(),
-                        suffixIcon: GestureDetector(
-                          onTap: () => _onFieldSubmit(
+                        child: CustomFormField(
+                          focusNode: focusNode,
+                          textCapitalization: TextCapitalization.sentences,
+                          controller: messageController,
+                          minLines: 1,
+                          maxLines: 3,
+                          hintText: 'Enter message',
+                          onSubmitted: (value) => _onFieldSubmit(
                             context,
-                            messageController.text,
+                            value,
                             widget.chatEntity.chatId,
                           ),
-                          child: Container(
-                            margin:
-                                EdgeInsets.only(right: 2.w, top: 5, bottom: 5),
-                            padding: const EdgeInsets.symmetric(
-                              vertical: 10,
-                              horizontal: 15,
+                          suffixIconConstraints: const BoxConstraints(),
+                          suffixIcon: GestureDetector(
+                            onTap: () => _onFieldSubmit(
+                              context,
+                              messageController.text,
+                              widget.chatEntity.chatId,
                             ),
-                            decoration: BoxDecoration(
-                              color: AppColor.primaryColor,
-                              borderRadius: BorderRadius.circular(7),
-                            ),
-                            child: Icon(
-                              Icons.send,
-                              color: AppColor.whiteColor,
-                              size: 15.sp,
+                            child: Container(
+                              margin: EdgeInsets.only(
+                                right: 2.w,
+                                top: 5,
+                                bottom: 5,
+                              ),
+                              padding: const EdgeInsets.symmetric(
+                                vertical: 10,
+                                horizontal: 15,
+                              ),
+                              decoration: BoxDecoration(
+                                color: AppColor.primaryColor,
+                                borderRadius: BorderRadius.circular(7),
+                              ),
+                              child: Icon(
+                                Icons.send,
+                                color: AppColor.whiteColor,
+                                size: 15.sp,
+                              ),
                             ),
                           ),
                         ),
@@ -411,39 +438,93 @@ class MessageTile extends StatelessWidget {
           ),
           GapH(1.8.h),
         ],
-        SwipeAnimatatedWidget(
-          isRight: !isUserSend,
-          isLeft: isUserSend,
-          onLeftSwipe: () => _onSwipe(context, message),
-          onRightSwipe: () => _onSwipe(context, message),
-          child: Align(
-            alignment:
-                isUserSend ? Alignment.centerRight : Alignment.centerLeft,
-            child: GestureDetector(
-              onDoubleTap: () =>
-                  isUserSend ? onMessageDoubleTap(message) : null,
-              child: Container(
-                padding: EdgeInsets.all(3.w),
-                decoration: BoxDecoration(
-                  color: isUserSend
-                      ? AppColor.whiteColor.withAlpha(51)
-                      : AppColor.primaryColor,
-                  borderRadius: BorderRadius.circular(1.h),
-                ),
-                child: ConstrainedBox(
-                  constraints: BoxConstraints(maxWidth: 70.w),
-                  child: CustomText(
-                    AESCipherService.decrypt(
-                      message.message,
-                      message.messageIv,
+        Row(
+          mainAxisAlignment:
+              isUserSend ? MainAxisAlignment.end : MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            if (!isUserSend) ...[
+              Column(
+                children: [
+                  CircleAvatar(
+                    backgroundImage: CachedNetworkImageProvider(
+                      message.sender.image.toApiImage(),
                     ),
-                    color: AppColor.whiteColor,
-                    fontSize: 13.sp,
+                    radius: 4.w,
                   ),
+                  const GapH(3),
+                ],
+              ),
+              GapW(2.w),
+            ],
+            SwipeAnimatatedWidget(
+              isRight: !isUserSend,
+              isLeft: isUserSend,
+              onLeftSwipe: () => _onSwipe(context, message),
+              onRightSwipe: () => _onSwipe(context, message),
+              child: GestureDetector(
+                onDoubleTap: () =>
+                    isUserSend ? onMessageDoubleTap(message) : null,
+                child: Column(
+                  crossAxisAlignment: isUserSend
+                      ? CrossAxisAlignment.end
+                      : CrossAxisAlignment.start,
+                  children: [
+                    if (message.replyToMessage != null) ...[
+                      Container(
+                        padding: EdgeInsets.all(2.w),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(1.h),
+                          border: Border.all(
+                            color: AppColor.whiteColor.withAlpha(75),
+                          ),
+                        ),
+                        constraints: BoxConstraints(maxWidth: 70.w),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            CustomText(
+                              'Reply to @${message.replyToMessage?.sender.username}',
+                              color: AppColor.whiteColor.withAlpha(75),
+                              fontSize: 10.5.sp,
+                            ),
+                            const GapH(3),
+                            CustomText(
+                              AESCipherService.decrypt(
+                                message.replyToMessage!.message,
+                                message.replyToMessage!.messageIv,
+                              ),
+                              color: AppColor.whiteColor.withAlpha(127),
+                              fontSize: 10.sp,
+                            ),
+                          ],
+                        ),
+                      ),
+                      const GapH(5),
+                    ],
+                    Container(
+                      padding: EdgeInsets.all(3.w),
+                      decoration: BoxDecoration(
+                        color: isUserSend
+                            ? AppColor.whiteColor.withAlpha(51)
+                            : AppColor.primaryColor,
+                        borderRadius: BorderRadius.circular(1.h),
+                      ),
+                      constraints: BoxConstraints(maxWidth: 70.w),
+                      child: CustomText(
+                        AESCipherService.decrypt(
+                          message.message,
+                          message.messageIv,
+                        ),
+                        color: AppColor.whiteColor,
+                        fontSize: 13.sp,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
-          ),
+          ],
         ),
         if (isTimeShow) ...[
           GapH(0.8.h),

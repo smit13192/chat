@@ -7,6 +7,8 @@ class CustomButton extends StatelessWidget {
   final String text;
   final void Function()? onPressed;
   final Color buttonColor;
+  final Color? highlightColor;
+  final Color? splashColor;
   final double height;
   final double? width;
   final double elevation;
@@ -21,6 +23,8 @@ class CustomButton extends StatelessWidget {
     required this.text,
     this.onPressed,
     this.buttonColor = AppColor.primaryColor,
+    this.highlightColor,
+    this.splashColor,
     this.height = 54.0,
     this.width,
     this.elevation = 3,
@@ -38,8 +42,8 @@ class CustomButton extends StatelessWidget {
       borderRadius: borderRadius ?? BorderRadius.circular(8),
       color: buttonColor,
       child: InkWell(
-        highlightColor: AppColor.transparent,
-        splashColor: AppColor.buttonSplashColor,
+        highlightColor: highlightColor ?? AppColor.transparent,
+        splashColor: splashColor ?? AppColor.buttonSplashColor,
         onTap: isLoading ? null : onPressed,
         borderRadius: borderRadius ?? BorderRadius.circular(8),
         child: AnimatedContainer(

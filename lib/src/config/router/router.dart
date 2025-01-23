@@ -13,7 +13,8 @@ import 'package:go_router/go_router.dart';
 part 'routes.dart';
 
 class AppRouterNavigationKey {
-  static final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+  static final GlobalKey<NavigatorState> navigatorKey =
+      GlobalKey<NavigatorState>();
 }
 
 class AppRouter {

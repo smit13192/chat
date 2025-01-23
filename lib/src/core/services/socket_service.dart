@@ -99,6 +99,7 @@ class SocketService {
   void disconnect() {
     if (_socket?.connected == true) {
       _socket?.disconnect();
+      _socket = null;
     }
   }
 }

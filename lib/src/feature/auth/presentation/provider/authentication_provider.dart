@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:chat/src/config/router/router.dart';
 import 'package:chat/src/core/database/storage.dart';
 import 'package:chat/src/core/extension/context_extension.dart';
+import 'package:chat/src/core/services/socket_service.dart';
 import 'package:chat/src/core/utils/formz_status.dart';
 import 'package:chat/src/feature/auth/domain/entity/login_entity.dart';
 import 'package:chat/src/feature/auth/domain/usecase/login_usecase.dart';
@@ -148,5 +149,14 @@ class AuthenticationProvider extends ChangeNotifier {
     notifyListeners();
     if (!context.mounted) return;
     context.showSuccessSnackBar('User profile updated successfully');
+  }
+
+  Future<void> logout(BuildContext context) async {
+    await Storage.instance.clear();
+    user = null;
+    if (!context.mounted) return;
+    SocketService.instance.disconnect();
+    context.showSuccessSnackBar('User logged out successfully');
+    context.go(Routes.login);
   }
 }

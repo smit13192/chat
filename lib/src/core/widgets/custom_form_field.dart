@@ -61,6 +61,7 @@ class CustomFormField extends StatelessWidget {
       onFieldSubmitted: onSubmitted,
       style: TextStyle(color: AppColor.whiteColor.withAlpha(229)),
       textCapitalization: textCapitalization,
+      keyboardAppearance: Brightness.dark,
       decoration: InputDecoration(
         hintText: hintText,
         hintStyle: TextStyle(color: AppColor.whiteColor.withAlpha(128)),

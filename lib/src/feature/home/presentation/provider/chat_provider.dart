@@ -72,6 +72,7 @@ class ChatProvider extends ChangeNotifier {
       ),
     );
     if (result.isFailure) return;
+    replyToMessage = null;
   }
 
   Future<void> deleteMessage({

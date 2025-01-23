@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:chat/app/app.dart';
 import 'package:chat/firebase_options.dart';
 import 'package:chat/locator.dart';
@@ -10,7 +12,8 @@ import 'package:hive_flutter/hive_flutter.dart';
 
 final systemOverlayStyle = SystemUiOverlayStyle.light.copyWith(
   statusBarColor: Colors.transparent,
-  statusBarBrightness: Brightness.dark,
+  systemNavigationBarColor: Colors.transparent,
+  systemNavigationBarDividerColor: Colors.transparent,
 );
 
 Future<void> boxOpen() async {
@@ -23,6 +26,7 @@ Future<void> init() async {
     DeviceOrientation.portraitDown,
   ]);
   SystemChrome.setSystemUIOverlayStyle(systemOverlayStyle);
+  unawaited(SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge));
   await Hive.initFlutter();
   await boxOpen();
   initLocator();

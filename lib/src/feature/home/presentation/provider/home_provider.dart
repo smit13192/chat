@@ -202,4 +202,10 @@ class HomeProvider extends ChangeNotifier {
       ),
     );
   }
+
+  void clearAllData() {
+    users.clear();
+    chatList.clear();
+    activeUser.clear();
+  }
 }
