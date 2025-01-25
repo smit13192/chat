@@ -72,12 +72,13 @@ class AuthenticationProvider extends ChangeNotifier {
     required String email,
     required String password,
   }) async {
+    GoRouter router = GoRouter.of(context);
     loginFormzStatus = FormzStatus.loading;
     final result =
         await loginUseCase(LoginParams(email: email, password: password));
+      loginFormzStatus = FormzStatus.pure;
 
     if (result.isFailure) {
-      loginFormzStatus = FormzStatus.pure;
       SnackBarService.showErrorSnackBar(result.failure.message);
       return;
     }
@@ -87,8 +88,8 @@ class AuthenticationProvider extends ChangeNotifier {
       Storage.instance.setToken(result.data.token),
       Storage.instance.setId(result.data.user.userId),
     ]);
-    loginFormzStatus = FormzStatus.pure;
     SnackBarService.showSuccessSnackBar('User logged in successfully');
+    router.goNamed(Routes.dashboard.name);
   }
 
   Future<void> register(
@@ -110,7 +111,7 @@ class AuthenticationProvider extends ChangeNotifier {
     }
 
     SnackBarService.showSuccessSnackBar(result.data);
-    router.goNamed(Routes.splashScreen);
+    router.goNamed(Routes.login.name);
   }
 
   Future<void> getUserProfile() async {
@@ -144,10 +145,11 @@ class AuthenticationProvider extends ChangeNotifier {
   }
 
   Future<void> logout(BuildContext context) async {
+    final router = GoRouter.of(context);
     await Storage.instance.clear();
     user = null;
     SocketService.instance.disconnect();
-    notifyListeners();
     SnackBarService.showSuccessSnackBar('User logged out successfully');
+    router.goNamed(Routes.login.name);
   }
 }

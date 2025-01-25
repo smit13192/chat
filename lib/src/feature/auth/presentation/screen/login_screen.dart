@@ -119,6 +119,6 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   void _onRegisterTap(BuildContext context) {
-    context.pushNamed(Routes.register);
+    context.pushNamed(Routes.register.name);
   }
 }

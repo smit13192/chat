@@ -105,7 +105,7 @@ class HomeProvider extends ChangeNotifier {
       return;
     }
     router.pushNamed(
-      Routes.chat,
+      Routes.chat.name,
       extra: ChatScreenParmas(chatEnity: result.data),
     );
   }
@@ -141,7 +141,7 @@ class HomeProvider extends ChangeNotifier {
     if (context != null) {
       final GoRouterState? state = GoRouter.of(context).state;
       if (state == null) return null;
-      if (state.uri.toString().startsWith(Routes.chat)) {
+      if (state.uri.toString().startsWith(Routes.chat.path)) {
         final params = state.extra as ChatScreenParmas;
         return params.chatEnity.chatId;
       }

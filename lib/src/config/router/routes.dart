@@ -1,13 +1,19 @@
 part of 'router.dart';
 
-abstract class Routes {
-  static const String splashScreen = '/';
-  static const String register = 'register';
-  static const String chat = 'chat';
-  static const String editProfile = 'edit-profile';
+enum Routes {
+  splash('/splash'),
+  login('/login'),
+  register('/register'),
+  dashboard('/'),
+  chat('/chat'),
+  editProfile('edit-profile');
+
+  final String path;
+  const Routes(this.path);
 
   static List<String> get privateRoutes => [
-        '/$chat',
-        '/$editProfile',
+        dashboard.path,
+        chat.path,
+        '/${editProfile.path}',
       ];
 }
