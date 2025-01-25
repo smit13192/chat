@@ -66,7 +66,7 @@ class MessageNotificationWidget extends StatelessWidget {
   }
 
   void _onTap(BuildContext context) {
-    context.push(
+    context.pushNamed(
       Routes.chat,
       extra: ChatScreenParmas(chatEnity: chat),
     );

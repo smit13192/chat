@@ -2,21 +2,19 @@ import 'package:chat/src/config/constant/app_color.dart';
 import 'package:chat/src/core/utils/snackbar_controller.dart';
 import 'package:flutter/material.dart';
 
-extension BuildContextExtension on BuildContext {
-  void showErrorSnackBar(String message) {
+class SnackBarService {
+  static void showErrorSnackBar(String message) {
     SnackbarController.dismissAll();
     SnackbarController.showSnackbar(
-      context: this,
       message: message,
       icon: Icons.error,
       backgroundColor: AppColor.redColor,
     );
   }
 
-  void showSuccessSnackBar(String message) {
+  static void showSuccessSnackBar(String message) {
     SnackbarController.dismissAll();
     SnackbarController.showSnackbar(
-      context: this,
       message: message,
       icon: Icons.check_circle_rounded,
       backgroundColor: AppColor.greenColor,

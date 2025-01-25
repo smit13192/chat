@@ -133,7 +133,7 @@ class GetAllChatView extends StatelessWidget {
   }
 
   void _onChatTap(BuildContext context, ChatEntity chat) {
-    context.push(
+    context.pushNamed(
       Routes.chat,
       extra: ChatScreenParmas(chatEnity: chat),
     );
