@@ -139,8 +139,7 @@ class HomeProvider extends ChangeNotifier {
     final BuildContext? context =
         AppRouterNavigationKey.navigatorKey.currentContext;
     if (context != null) {
-      final GoRouterState? state = GoRouter.of(context).state;
-      if (state == null) return null;
+      final GoRouterState state = GoRouter.of(context).state;
       if (state.uri.toString().startsWith(Routes.chat.path)) {
         final params = state.extra as ChatScreenParmas;
         return params.chatEnity.chatId;
