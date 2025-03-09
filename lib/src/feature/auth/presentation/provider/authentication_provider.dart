@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:chat/src/config/router/router.dart';
 import 'package:chat/src/core/database/storage.dart';
-import 'package:chat/src/core/extension/context_extension.dart';
+import 'package:chat/src/core/services/snackbar_service.dart';
 import 'package:chat/src/core/services/socket_service.dart';
 import 'package:chat/src/core/utils/formz_status.dart';
 import 'package:chat/src/feature/auth/domain/entity/login_entity.dart';
@@ -72,15 +72,14 @@ class AuthenticationProvider extends ChangeNotifier {
     required String email,
     required String password,
   }) async {
-    final router = GoRouter.of(context);
+    GoRouter router = GoRouter.of(context);
     loginFormzStatus = FormzStatus.loading;
     final result =
         await loginUseCase(LoginParams(email: email, password: password));
-    loginFormzStatus = FormzStatus.pure;
+      loginFormzStatus = FormzStatus.pure;
 
     if (result.isFailure) {
-      if (!context.mounted) return;
-      context.showErrorSnackBar(result.failure.message);
+      SnackBarService.showErrorSnackBar(result.failure.message);
       return;
     }
 
@@ -89,9 +88,8 @@ class AuthenticationProvider extends ChangeNotifier {
       Storage.instance.setToken(result.data.token),
       Storage.instance.setId(result.data.user.userId),
     ]);
-    if (!context.mounted) return;
-    context.showSuccessSnackBar('User logged in successfully');
-    router.go(Routes.dashboard);
+    SnackBarService.showSuccessSnackBar('User logged in successfully');
+    router.goNamed(Routes.dashboard.name);
   }
 
   Future<void> register(
@@ -108,14 +106,12 @@ class AuthenticationProvider extends ChangeNotifier {
     registerFormzStatus = FormzStatus.pure;
 
     if (result.isFailure) {
-      if (!context.mounted) return;
-      context.showErrorSnackBar(result.failure.message);
+      SnackBarService.showErrorSnackBar(result.failure.message);
       return;
     }
 
-    if (!context.mounted) return;
-    context.showSuccessSnackBar(result.data);
-    router.go(Routes.login);
+    SnackBarService.showSuccessSnackBar(result.data);
+    router.goNamed(Routes.login.name);
   }
 
   Future<void> getUserProfile() async {
@@ -140,23 +136,20 @@ class AuthenticationProvider extends ChangeNotifier {
     );
     updateProfileFormzStatus = FormzStatus.pure;
     if (result.isFailure) {
-      if (!context.mounted) return;
-      context.showErrorSnackBar(result.failure.message);
+      SnackBarService.showErrorSnackBar(result.failure.message);
       return;
     }
-
     user = result.data;
     notifyListeners();
-    if (!context.mounted) return;
-    context.showSuccessSnackBar('User profile updated successfully');
+    SnackBarService.showSuccessSnackBar('User profile updated successfully');
   }
 
   Future<void> logout(BuildContext context) async {
+    final router = GoRouter.of(context);
     await Storage.instance.clear();
     user = null;
-    if (!context.mounted) return;
     SocketService.instance.disconnect();
-    context.showSuccessSnackBar('User logged out successfully');
-    context.go(Routes.login);
+    SnackBarService.showSuccessSnackBar('User logged out successfully');
+    router.goNamed(Routes.login.name);
   }
 }

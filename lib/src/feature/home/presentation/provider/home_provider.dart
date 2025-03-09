@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:chat/src/api/failure/failure.dart';
 import 'package:chat/src/config/router/router.dart';
 import 'package:chat/src/core/database/storage.dart';
-import 'package:chat/src/core/extension/context_extension.dart';
+import 'package:chat/src/core/services/snackbar_service.dart';
 import 'package:chat/src/core/services/socket_service.dart';
 import 'package:chat/src/core/utils/formz_status.dart';
 import 'package:chat/src/core/utils/screen_loading_controller.dart';
@@ -101,12 +101,11 @@ class HomeProvider extends ChangeNotifier {
     final result = await accessChatUseCase(recieverId);
     ScreenLoadingController.instance.hide();
     if (result.isFailure) {
-      if (!context.mounted) return;
-      context.showErrorSnackBar(result.failure.message);
+      SnackBarService.showErrorSnackBar(result.failure.message);
       return;
     }
-    router.push(
-      Routes.chat,
+    router.pushNamed(
+      Routes.chat.name,
       extra: ChatScreenParmas(chatEnity: result.data),
     );
   }
@@ -140,9 +139,8 @@ class HomeProvider extends ChangeNotifier {
     final BuildContext? context =
         AppRouterNavigationKey.navigatorKey.currentContext;
     if (context != null) {
-      final GoRouterState? state = GoRouter.of(context).state;
-      if (state == null) return null;
-      if (state.uri.toString().startsWith(Routes.chat)) {
+      final GoRouterState state = GoRouter.of(context).state;
+      if (state.uri.toString().startsWith(Routes.chat.path)) {
         final params = state.extra as ChatScreenParmas;
         return params.chatEnity.chatId;
       }

@@ -141,3 +141,4 @@ app.*.symbols
 .fvm/
 .vscode/
 env/
+android/app/.cxx/

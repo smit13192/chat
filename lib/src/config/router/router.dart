@@ -21,32 +21,39 @@ class AppRouter {
   static final GoRouter router = GoRouter(
     navigatorKey: AppRouterNavigationKey.navigatorKey,
     debugLogDiagnostics: true,
+    initialLocation: Routes.splash.path,
     routes: <RouteBase>[
       GoRoute(
-        path: Routes.splashScreen,
+        path: Routes.splash.path,
+        name: Routes.splash.name,
         builder: (context, state) => const SplashScreen(),
       ),
       GoRoute(
-        path: Routes.login,
+        path: Routes.login.path,
+        name: Routes.login.name,
         builder: (context, state) => const LoginScreen(),
       ),
       GoRoute(
-        path: Routes.register,
+        path: Routes.register.path,
+        name: Routes.register.name,
         builder: (context, state) => const RegisterScreen(),
       ),
       GoRoute(
-        path: Routes.editProfile,
-        builder: (context, state) => const EditProfileScreen(),
-      ),
-      GoRoute(
-        path: Routes.dashboard,
+        path: Routes.dashboard.path,
+        name: Routes.dashboard.name,
         builder: (context, state) => const DashboardScreen(),
       ),
       GoRoute(
-        path: Routes.chat,
-        builder: (context, state) => ChatScreen(
-          params: state.extra as ChatScreenParmas,
-        ),
+        path: Routes.editProfile.path,
+        name: Routes.editProfile.name,
+        builder: (context, state) => const EditProfileScreen(),
+      ),
+      GoRoute(
+        path: Routes.chat.path,
+        name: Routes.chat.name,
+        builder: (context, state) {
+          return ChatScreen(params: state.extra as ChatScreenParmas);
+        },
       ),
     ],
     errorBuilder: (context, state) => const NoPageFoundScreen(),
@@ -55,10 +62,10 @@ class AppRouter {
       final isAuthenticated = authProvider.isAuthenticated;
       if (Routes.privateRoutes.contains(state.matchedLocation) &&
           !isAuthenticated) {
-        return Routes.login;
+        return Routes.login.path;
       }
-      if (state.matchedLocation == Routes.login && isAuthenticated) {
-        return Routes.dashboard;
+      if (state.matchedLocation == Routes.login.path && isAuthenticated) {
+        return Routes.dashboard.path;
       }
       return null;
     },

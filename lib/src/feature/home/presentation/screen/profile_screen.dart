@@ -125,7 +125,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   void _onEditProfileTap(BuildContext context) {
-    context.push(Routes.editProfile);
+    context.pushNamed(Routes.editProfile.name);
   }
 
   Future<void> _onLogoutTap(BuildContext context) async {

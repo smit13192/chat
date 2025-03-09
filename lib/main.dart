@@ -4,6 +4,7 @@ import 'package:chat/app/app.dart';
 import 'package:chat/firebase_options.dart';
 import 'package:chat/locator.dart';
 import 'package:chat/src/core/database/storage.dart';
+import 'package:chat/src/feature/auth/presentation/provider/authentication_provider.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -39,5 +40,6 @@ Future<void> main(List<String> args) async {
   );
   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
   await init();
+  await locator<AuthenticationProvider>().checkIsLogin();
   runApp(const App());
 }
