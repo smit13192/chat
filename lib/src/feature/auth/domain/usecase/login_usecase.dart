@@ -15,6 +15,7 @@ class LoginUseCase extends UseCase<LoginParams, DataState<LoginEnity>> {
     return _authenticationRepository.login(
       email: params.email,
       password: params.password,
+      fcmToken: params.fcmToken,
     );
   }
 }
@@ -22,9 +23,12 @@ class LoginUseCase extends UseCase<LoginParams, DataState<LoginEnity>> {
 class LoginParams {
   String email;
   String password;
+  String fcmToken;
+
 
   LoginParams({
     required this.email,
     required this.password,
+    required this.fcmToken,
   });
 }

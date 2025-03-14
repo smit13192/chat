@@ -17,6 +17,9 @@
      or higher if your app targets Android 14 (API level 34) or higher.  -->
     <uses-permission android:name="android.permission.READ_MEDIA_VISUAL_USER_SELECTED" />
     
+    <!-- This permission for flutter local notification in package permission  -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/> 
+    
     <application
         android:label="Ms Chat"
         android:name="${applicationName}"
@@ -67,6 +70,18 @@
             </intent-filter>
 
         </activity>
+        <!-- This meta-data for make channel in the flutter local notification package  -->
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_channel_id"
+            android:value="high_importance_channel"/>
+        <!-- This meta-data for show notification icon -->
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_icon"
+            android:resource="@drawable/ic_notification" />
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_color"
+            android:resource="@color/black" />
+            
         <!-- Don't delete the meta-data below.
              This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->
         <meta-data

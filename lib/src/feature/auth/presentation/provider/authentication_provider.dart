@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:chat/src/config/router/router.dart';
 import 'package:chat/src/core/database/storage.dart';
+import 'package:chat/src/core/services/notification_service.dart';
 import 'package:chat/src/core/services/snackbar_service.dart';
 import 'package:chat/src/core/services/socket_service.dart';
 import 'package:chat/src/core/utils/formz_status.dart';
@@ -74,9 +75,12 @@ class AuthenticationProvider extends ChangeNotifier {
   }) async {
     GoRouter router = GoRouter.of(context);
     loginFormzStatus = FormzStatus.loading;
-    final result =
-        await loginUseCase(LoginParams(email: email, password: password));
-      loginFormzStatus = FormzStatus.pure;
+    final notificationService = NotificationService();
+    final fcmToken = await notificationService.getFcmToken();
+    final result = await loginUseCase(
+      LoginParams(email: email, password: password, fcmToken: fcmToken),
+    );
+    loginFormzStatus = FormzStatus.pure;
 
     if (result.isFailure) {
       SnackBarService.showErrorSnackBar(result.failure.message);

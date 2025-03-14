@@ -5,6 +5,7 @@ abstract interface class AuthenticationRepository {
   Future<DataState<LoginEnity>> login({
     required String email,
     required String password,
+    required String fcmToken,
   });
 
   Future<DataState<String>> register({

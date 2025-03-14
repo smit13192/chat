@@ -16,11 +16,13 @@ class AuthenticationRepositoryImpl implements AuthenticationRepository {
   Future<DataState<LoginEnity>> login({
     required String email,
     required String password,
+    required String fcmToken,
   }) async {
     try {
       final response = await _apiAuthenticationDataSource.login(
         email: email,
         password: password,
+        fcmToken: fcmToken,
       );
       return DataState.success(response);
     } on ApiException catch (e) {

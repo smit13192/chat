@@ -10,20 +10,17 @@ import 'package:http_parser/http_parser.dart' show MediaType;
 class ApiAuthenticationDataSource {
   final ApiClient _apiClient;
 
-  ApiAuthenticationDataSource({
-    required ApiClient apiClient,
-  }) : _apiClient = apiClient;
+  ApiAuthenticationDataSource({required ApiClient apiClient})
+    : _apiClient = apiClient;
 
   Future<LoginModel> login({
     required String email,
     required String password,
+    required String fcmToken,
   }) async {
     final response = await _apiClient.post(
       Endpoints.login,
-      data: {
-        'email': email,
-        'password': password,
-      },
+      data: {'email': email, 'password': password, 'fcmToken': fcmToken},
     );
     final result = CommonModel.fromMap(
       response,
@@ -43,11 +40,7 @@ class ApiAuthenticationDataSource {
   }) async {
     final response = await _apiClient.post(
       Endpoints.register,
-      data: {
-        'username': username,
-        'email': email,
-        'password': password,
-      },
+      data: {'username': username, 'email': email, 'password': password},
     );
     final result = CommonModel.fromMap(response);
     if (result.success) {
@@ -82,10 +75,7 @@ class ApiAuthenticationDataSource {
       );
     }
     FormData data = FormData.fromMap(map);
-    final response = await _apiClient.put(
-      Endpoints.updateProfile,
-      data: data,
-    );
+    final response = await _apiClient.put(Endpoints.updateProfile, data: data);
     final result = CommonModel.fromMap(
       response,
       handler: (data) => UserModel.fromMap(data),
