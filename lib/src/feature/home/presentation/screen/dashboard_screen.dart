@@ -1,6 +1,7 @@
 import 'package:chat/main.dart';
 import 'package:chat/src/config/constant/app_color.dart';
 import 'package:chat/src/config/constant/app_string.dart';
+import 'package:chat/src/core/services/notification_service.dart';
 import 'package:chat/src/core/widgets/custom_text.dart';
 import 'package:chat/src/core/widgets/gap.dart';
 import 'package:chat/src/feature/home/presentation/screen/get_all_user_screen.dart';
@@ -48,6 +49,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   int selectedTab = 0;
 
+  @override
+  void initState() {
+    super.initState();
+    NotificationService().init();
+  }
+  
   @override
   Widget build(BuildContext context) {
     return Scaffold(
