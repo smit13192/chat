@@ -20,4 +20,8 @@ class Log {
       log('$data', name: 'SUCCESS');
     }
   }
+
+  static void release(dynamic data) {
+    debugPrint('$data');
+  }
 }

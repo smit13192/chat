@@ -1,12 +1,12 @@
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
+import 'package:chat/src/config/constant/app_color.dart';
+import 'package:chat/src/core/utils/log.dart' show Log;
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:http/http.dart' show get;
-import 'package:chat/src/core/utils/log.dart' show Log;
 import 'package:path_provider/path_provider.dart' show getTemporaryDirectory;
-
 
 /// Handle background notification when app is not running
 ///
@@ -15,9 +15,9 @@ import 'package:path_provider/path_provider.dart' show getTemporaryDirectory;
 /// closure or tear-off.
 @pragma('vm:entry-point')
 Future<void> handleBackground(RemoteMessage message) async {
-  Log.d('Title:- ${message.notification?.title}');
-  Log.d('Body:- ${message.notification?.body}');
-  Log.d('Data:- ${message.data}');
+  Log.release('Title:- ${message.notification?.title}');
+  Log.release('Body:- ${message.notification?.body}');
+  Log.release('Data:- ${message.data}');
 }
 
 class NotificationService {
@@ -73,7 +73,7 @@ class NotificationService {
   Future<String> getFcmToken() async {
     try {
       final fcmToken = await _firebaseMessaging.getToken();
-      Log.d('FCM TOKEN:- $fcmToken');
+      Log.release('FCM TOKEN:- $fcmToken');
       return fcmToken ?? '';
     } catch (e) {
       return '';
@@ -219,6 +219,7 @@ class NotificationService {
         icon: icon,
         importance: _androidChannel.importance,
         styleInformation: bigPictureStyle,
+        color: AppColor.blackColor,
       ),
     );
   }
