@@ -21,6 +21,7 @@ class CustomFormField extends StatelessWidget {
   final TextCapitalization textCapitalization;
   final BoxConstraints? suffixIconConstraints;
   final void Function(String value)? onSubmitted;
+  final void Function(String value)? onChanged;
 
   const CustomFormField({
     super.key,
@@ -42,6 +43,7 @@ class CustomFormField extends StatelessWidget {
     this.textCapitalization = TextCapitalization.none,
     this.suffixIconConstraints,
     this.onSubmitted,
+    this.onChanged,
   });
 
   @override
@@ -59,14 +61,17 @@ class CustomFormField extends StatelessWidget {
       minLines: minLines,
       maxLines: maxLines,
       onFieldSubmitted: onSubmitted,
+      onChanged: onChanged,
       style: TextStyle(color: AppColor.whiteColor.withAlpha(229)),
       textCapitalization: textCapitalization,
       keyboardAppearance: Brightness.dark,
       decoration: InputDecoration(
         hintText: hintText,
         hintStyle: TextStyle(color: AppColor.whiteColor.withAlpha(128)),
-        contentPadding:
-            const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
+        contentPadding: const EdgeInsets.symmetric(
+          vertical: 20,
+          horizontal: 20,
+        ),
         enabledBorder: getInputBorder(),
         disabledBorder: getInputBorder(),
         focusedBorder: getInputBorder(),

@@ -1,6 +1,7 @@
 import 'package:chat/src/core/services/aes_cipher_service.dart';
 import 'package:chat/src/core/utils/formz_status.dart';
 import 'package:chat/src/feature/home/domain/entity/message_entity.dart';
+import 'package:chat/src/feature/home/domain/entity/typing_entity.dart';
 import 'package:chat/src/feature/home/domain/usecase/delete_message_usecase.dart';
 import 'package:chat/src/feature/home/domain/usecase/get_all_chat_message.dart';
 import 'package:chat/src/feature/home/domain/usecase/send_message_usecase.dart';
@@ -23,6 +24,19 @@ class ChatProvider extends ChangeNotifier {
   FormzStatus get status => _status;
   set status(FormzStatus status) {
     _status = status;
+    notifyListeners();
+  }
+
+  TypingEntity? typing;
+  void addTyping(TypingEntity typing) {
+    this.typing = typing;
+    notifyListeners();
+  }
+
+  void removeTyping(TypingEntity typing) {
+    if (this.typing == null) return;
+    if (this.typing! != typing) return;
+    this.typing = null;
     notifyListeners();
   }
 
@@ -75,9 +89,7 @@ class ChatProvider extends ChangeNotifier {
     replyToMessage = null;
   }
 
-  Future<void> deleteMessage({
-    required String messageId,
-  }) async {
+  Future<void> deleteMessage({required String messageId}) async {
     final result = await deleteMessageUseCase(
       DeleteMessageParams(messageId: messageId),
     );
@@ -91,7 +103,6 @@ class ChatProvider extends ChangeNotifier {
 
   void deleteLiveChatMessage(MessageEntity message) {
     messages.remove(message);
-    messages = Set.of(messages);
     notifyListeners();
   }
 }

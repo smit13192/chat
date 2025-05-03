@@ -50,15 +50,6 @@ class ChatEntity extends Equatable {
   }
 
   @override
-  List<Object?> get props => [
-        chatId,
-        chatName,
-        isGroupChat,
-        users,
-        groupAdmin,
-        groupImage,
-        lastMessage,
-        createdAt,
-        updatedAt,
-      ];
+  List<Object?> get props => [chatId];
+
 }

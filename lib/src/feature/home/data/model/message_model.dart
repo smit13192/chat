@@ -28,4 +28,17 @@ class MessageModel extends MessageEntity {
       updatedAt: DateTime.parse(map['updatedAt']).toLocal(),
     );
   }
+
+  Map<String, dynamic> toMap() {
+    return {
+      '_id': messageId,
+      'message': message,
+      'sender': (sender as UserModel).toMap(),
+      'chat': chat,
+      'messageIv': messageIv,
+      'replyToMessage': (replyToMessage as MessageModel?)?.toMap(),
+      'createdAt': createdAt.toUtc().toIso8601String(),
+      'updatedAt': updatedAt.toUtc().toIso8601String(),
+    };
+  }
 }

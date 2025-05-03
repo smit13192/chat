@@ -47,7 +47,7 @@ class HomeProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  List<ChatEntity> chatList = [];
+  Set<ChatEntity> chatList = {};
   Failure? getAllChatFailure;
   FormzStatus _getAllChatStatus = FormzStatus.loading;
   FormzStatus get getAllChatStatus => _getAllChatStatus;
@@ -68,9 +68,7 @@ class HomeProvider extends ChangeNotifier {
     );
   }
 
-  Future<void> getAllUser({
-    bool isFromMain = false,
-  }) async {
+  Future<void> getAllUser({bool isFromMain = false}) async {
     if (isFromMain) {
       status = FormzStatus.loading;
       isDataOver = false;
@@ -114,7 +112,7 @@ class HomeProvider extends ChangeNotifier {
     getAllChatStatus = FormzStatus.loading;
     final result = await getAllUserChatUseCase();
     if (result.isSuccess) {
-      chatList = result.data;
+      chatList = result.data.toSet();
       getAllChatStatus = FormzStatus.success;
       return;
     }
@@ -122,16 +120,8 @@ class HomeProvider extends ChangeNotifier {
     getAllChatStatus = FormzStatus.failed;
   }
 
-  Future<void> changeLastSendMessage(
-    MessageEntity? message, {
-    String? chatId,
-  }) async {
-    chatList = List<ChatEntity>.from(chatList).map<ChatEntity>((e) {
-      if (e.chatId == (chatId ?? message!.chat)) {
-        return e.copyWith(lastMessage: message);
-      }
-      return e;
-    }).toList();
+  Future<void> changeLastSendMessage(ChatEntity chat) async {
+    chatList = {chat, ...chatList};
     notifyListeners();
   }
 
@@ -154,14 +144,15 @@ class HomeProvider extends ChangeNotifier {
         event: 'new-message',
         listner: (data) {
           if (data == null) return;
-          final chat =
-              ChatModel.fromMap((data as Map<String, dynamic>)['chat']);
+          final chat = ChatModel.fromMap(
+            (data as Map<String, dynamic>)['chat'],
+          );
           final currentChatId = getChatId();
           showMessageSnackBar(currentChatId, chat);
 
           final message = MessageModel.fromMap((data)['message']);
           liveMessage.add(message);
-          changeLastSendMessage(message);
+          changeLastSendMessage(chat);
         },
       ),
     );
@@ -190,12 +181,12 @@ class HomeProvider extends ChangeNotifier {
         event: 'delete-message',
         listner: (data) {
           if (data == null) return;
-          final message =
-              MessageModel.fromMap((data as Map<String, dynamic>)['message']);
+          final message = MessageModel.fromMap(
+            (data as Map<String, dynamic>)['message'],
+          );
           final chat = ChatModel.fromMap(data['chat']);
-          final chatId = message.chat;
           removeMessage.add(message);
-          changeLastSendMessage(chat.lastMessage, chatId: chatId);
+          changeLastSendMessage(chat);
         },
       ),
     );

@@ -16,8 +16,6 @@ class UserModel extends UserEntity {
     required super.userId,
     required super.email,
     required super.username,
-    required super.createdAt,
-    required super.updatedAt,
     required super.image,
   });
 
@@ -26,9 +24,17 @@ class UserModel extends UserEntity {
       userId: map['_id'],
       email: map['email'],
       username: map['username'],
-      createdAt: DateTime.parse(map['createdAt']).toLocal(),
-      updatedAt: DateTime.parse(map['updatedAt']).toLocal(),
       image: map['image'],
     );
   }
+
+  Map<String, dynamic> toMap() {
+  return {
+    '_id': userId,
+    'email': email,
+    'username': username,
+    'image': image,
+  };
+}
+
 }

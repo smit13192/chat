@@ -7,6 +7,7 @@ import 'package:chat/src/config/constant/app_color.dart';
 import 'package:chat/src/core/database/storage.dart';
 import 'package:chat/src/core/extension/datetime_extension.dart';
 import 'package:chat/src/core/services/aes_cipher_service.dart';
+import 'package:chat/src/core/services/socket_service.dart';
 import 'package:chat/src/core/utils/formz_status.dart';
 import 'package:chat/src/core/utils/post_frame_callback_mixin.dart';
 import 'package:chat/src/core/widgets/custom_button.dart';
@@ -15,8 +16,12 @@ import 'package:chat/src/core/widgets/custom_text.dart';
 import 'package:chat/src/core/widgets/gap.dart';
 import 'package:chat/src/core/widgets/loader.dart';
 import 'package:chat/src/core/widgets/refresh.dart';
+import 'package:chat/src/feature/auth/data/model/login_model.dart';
+import 'package:chat/src/feature/auth/presentation/provider/authentication_provider.dart';
+import 'package:chat/src/feature/home/data/model/chat_model.dart';
 import 'package:chat/src/feature/home/domain/entity/chat_entity.dart';
 import 'package:chat/src/feature/home/domain/entity/message_entity.dart';
+import 'package:chat/src/feature/home/domain/entity/typing_entity.dart';
 import 'package:chat/src/feature/home/presentation/provider/chat_provider.dart';
 import 'package:chat/src/feature/home/presentation/provider/home_provider.dart';
 import 'package:flutter/material.dart';
@@ -28,9 +33,7 @@ import 'package:sizer/sizer.dart';
 class ChatScreenParmas {
   final ChatEntity chatEnity;
 
-  ChatScreenParmas({
-    required this.chatEnity,
-  });
+  ChatScreenParmas({required this.chatEnity});
 }
 
 class ChatScreen extends StatelessWidget {
@@ -60,8 +63,10 @@ class _ChatViewState extends State<ChatView> with PostFrameCallbackMixin {
   late String? userId;
   StreamSubscription<MessageEntity>? liveMessage;
   StreamSubscription<MessageEntity>? removeMessage;
-  final focusNode = FocusNode();
   TextEditingController messageController = TextEditingController();
+  final socketService = SocketService.instance;
+  late AuthenticationProvider authProvider;
+  Timer? typingTimer;
 
   @override
   void initState() {
@@ -71,8 +76,8 @@ class _ChatViewState extends State<ChatView> with PostFrameCallbackMixin {
 
   @override
   void onPostFrameCallback() {
-    focusNode.requestFocus();
     final chatProvider = context.read<ChatProvider>();
+    authProvider = context.read<AuthenticationProvider>();
     chatProvider.getChatMessage(widget.chatEntity.chatId, isFromMain: true);
     final chatManageProvider = context.read<HomeProvider>();
     liveMessage = chatManageProvider.liveMessage.stream.listen((message) {
@@ -83,14 +88,47 @@ class _ChatViewState extends State<ChatView> with PostFrameCallbackMixin {
       if (message.chat != widget.chatEntity.chatId) return;
       chatProvider.deleteLiveChatMessage(message);
     });
+    socketService.add(
+      SocketListner(
+        event: 'start-typing',
+        listner: (data) {
+          if (!mounted) return;
+          if (data == null) return;
+          final chat = ChatModel.fromMap(
+            (data as Map<String, dynamic>)['chat'],
+          );
+          if (chat.chatId != widget.chatEntity.chatId) return;
+          final user = UserModel.fromMap(data['user']);
+          chatProvider.addTyping(TypingEntity(chatId: chat.chatId, user: user));
+        },
+      ),
+    );
+    socketService.add(
+      SocketListner(
+        event: 'stop-typing',
+        listner: (data) {
+          if (!mounted) return;
+          if (data == null) return;
+          final chat = ChatModel.fromMap(
+            (data as Map<String, dynamic>)['chat'],
+          );
+          if (chat.chatId != widget.chatEntity.chatId) return;
+          final user = UserModel.fromMap(data['user']);
+          chatProvider.removeTyping(
+            TypingEntity(chatId: chat.chatId, user: user),
+          );
+        },
+      ),
+    );
   }
 
   @override
   void dispose() {
     messageController.dispose();
-    focusNode.dispose();
     liveMessage?.cancel();
     removeMessage?.cancel();
+    socketService.off('start-typing');
+    socketService.off('stop-typing');
     super.dispose();
   }
 
@@ -104,21 +142,24 @@ class _ChatViewState extends State<ChatView> with PostFrameCallbackMixin {
               bool isActive = false;
               final homeProvider = context.watch<HomeProvider>();
               bool isGroupChat = widget.chatEntity.isGroupChat;
-              final recieverUserIndex = widget.chatEntity.users
-                  .indexWhere((element) => element.userId != userId);
+              final recieverUserIndex = widget.chatEntity.users.indexWhere(
+                (element) => element.userId != userId,
+              );
               if (recieverUserIndex != -1) {
                 isActive = homeProvider.activeUser.contains(
                   widget.chatEntity.users[recieverUserIndex].userId,
                 );
               }
-              String chatName = isGroupChat
-                  ? widget.chatEntity.chatName!
-                  : recieverUserIndex == -1
+              String chatName =
+                  isGroupChat
+                      ? widget.chatEntity.chatName!
+                      : recieverUserIndex == -1
                       ? 'No User Found'
                       : widget.chatEntity.users[recieverUserIndex].username;
-              String image = isGroupChat
-                  ? widget.chatEntity.groupImage
-                  : recieverUserIndex == -1
+              String image =
+                  isGroupChat
+                      ? widget.chatEntity.groupImage
+                      : recieverUserIndex == -1
                       ? widget.chatEntity.groupImage
                       : widget.chatEntity.users[recieverUserIndex].image;
               return Container(
@@ -140,8 +181,9 @@ class _ChatViewState extends State<ChatView> with PostFrameCallbackMixin {
                         child: ListTile(
                           leading: CircleAvatar(
                             backgroundColor: AppColor.transparent,
-                            backgroundImage:
-                                CachedNetworkImageProvider(image.toApiImage()),
+                            backgroundImage: CachedNetworkImageProvider(
+                              image.toApiImage(),
+                            ),
                           ),
                           title: CustomText(
                             chatName,
@@ -152,8 +194,8 @@ class _ChatViewState extends State<ChatView> with PostFrameCallbackMixin {
                             isGroupChat
                                 ? 'Hello! Feel free to start the conversation.'
                                 : isActive
-                                    ? 'Active now'
-                                    : 'The user is currently offline. Drop a message and they\'ll get back to you!',
+                                ? 'Active now'
+                                : 'The user is currently offline. Drop a message and they\'ll get back to you!',
                             color: AppColor.whiteColor.withAlpha(178),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
@@ -175,9 +217,10 @@ class _ChatViewState extends State<ChatView> with PostFrameCallbackMixin {
                 switch (status) {
                   case FormzStatus.failed:
                     return Refresh(
-                      onRefresh: () => context
-                          .read<ChatProvider>()
-                          .getChatMessage(widget.chatEntity.chatId),
+                      onRefresh:
+                          () => context.read<ChatProvider>().getChatMessage(
+                            widget.chatEntity.chatId,
+                          ),
                     );
                   case FormzStatus.success:
                     return MessageBuild(
@@ -196,17 +239,15 @@ class _ChatViewState extends State<ChatView> with PostFrameCallbackMixin {
               padding: EdgeInsets.only(bottom: 2.h, top: 1.h),
               child: Builder(
                 builder: (context) {
-                  final replyToMessage =
-                      context.select<ChatProvider, MessageEntity?>(
-                    (value) => value.replyToMessage,
-                  );
+                  final replyToMessage = context
+                      .select<ChatProvider, MessageEntity?>(
+                        (value) => value.replyToMessage,
+                      );
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       if (replyToMessage != null) ...[
-                        Divider(
-                          color: AppColor.whiteColor.withAlpha(75),
-                        ),
+                        Divider(color: AppColor.whiteColor.withAlpha(75)),
                         Padding(
                           padding: EdgeInsets.only(
                             left: 20 + 4.w,
@@ -241,9 +282,11 @@ class _ChatViewState extends State<ChatView> with PostFrameCallbackMixin {
                               ),
                               GapW(3.w),
                               GestureDetector(
-                                onTap: () => context
-                                    .read<ChatProvider>()
-                                    .replyToMessage = null,
+                                onTap:
+                                    () =>
+                                        context
+                                            .read<ChatProvider>()
+                                            .replyToMessage = null,
                                 child: Transform.translate(
                                   offset: const Offset(0, 2),
                                   child: Icon(
@@ -258,29 +301,28 @@ class _ChatViewState extends State<ChatView> with PostFrameCallbackMixin {
                         ),
                       ],
                       Padding(
-                        padding: EdgeInsets.only(
-                          left: 4.w,
-                          right: 4.w,
-                        ),
+                        padding: EdgeInsets.only(left: 4.w, right: 4.w),
                         child: CustomFormField(
-                          focusNode: focusNode,
                           textCapitalization: TextCapitalization.sentences,
                           controller: messageController,
                           minLines: 1,
                           maxLines: 3,
                           hintText: 'Enter message',
-                          onSubmitted: (value) => _onFieldSubmit(
-                            context,
-                            value,
-                            widget.chatEntity.chatId,
-                          ),
+                          onSubmitted:
+                              (value) => _onFieldSubmit(
+                                context,
+                                value,
+                                widget.chatEntity.chatId,
+                              ),
+                          onChanged: (value) => _onTextFieldChanged(),
                           suffixIconConstraints: const BoxConstraints(),
                           suffixIcon: GestureDetector(
-                            onTap: () => _onFieldSubmit(
-                              context,
-                              messageController.text,
-                              widget.chatEntity.chatId,
-                            ),
+                            onTap:
+                                () => _onFieldSubmit(
+                                  context,
+                                  messageController.text,
+                                  widget.chatEntity.chatId,
+                                ),
                             child: Container(
                               margin: EdgeInsets.only(
                                 right: 2.w,
@@ -316,12 +358,27 @@ class _ChatViewState extends State<ChatView> with PostFrameCallbackMixin {
   }
 
   void _onFieldSubmit(BuildContext context, String message, String chatId) {
-    FocusScope.of(context).requestFocus(focusNode);
     if (message.trim().isEmpty) return;
-    context
-        .read<ChatProvider>()
-        .sendMessage(chatId: chatId, message: message.trim());
+    context.read<ChatProvider>().sendMessage(
+      chatId: chatId,
+      message: message.trim(),
+    );
     messageController.clear();
+  }
+
+  void _onTextFieldChanged() {
+    final user = (authProvider.user as UserModel).toMap();
+    final chat = (widget.chatEntity as ChatModel).toMap();
+    if (typingTimer != null) {
+      typingTimer?.cancel();
+    }
+    if (typingTimer == null) {
+      socketService.emit('start-typing', {'user': user, 'chat': chat});
+    }
+    typingTimer = Timer(const Duration(milliseconds: 500), () {
+      socketService.emit('stop-typing', {'user': user, 'chat': chat});
+      typingTimer = null;
+    });
   }
 }
 
@@ -332,15 +389,42 @@ class MessageBuild extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final chats = context.watch<ChatProvider>().messages;
+    final chatProvider = context.watch<ChatProvider>();
+    final chats = chatProvider.messages;
     return LazyLoadScrollView(
       onEndOfPage: () => _onPageOver(context, chatId),
       child: ListView.separated(
         separatorBuilder: (context, index) => GapH(1.6.h),
         padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 1.h),
         reverse: true,
-        itemCount: chats.length,
-        itemBuilder: (context, index) {
+        itemCount:
+            (chats.length +
+                (chatProvider.typing == null ? 0 : 1) +
+                (chatProvider.isDataOver ? 0 : 1)),
+        itemBuilder: (context, i) {
+          if (i == 0 && chatProvider.typing != null) {
+            return Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                CircleAvatar(
+                  backgroundImage: CachedNetworkImageProvider(
+                    chatProvider.typing!.user.image.toApiImage(),
+                  ),
+                  radius: 4.w,
+                ),
+                GapW(2.w),
+                CustomText(
+                  '${chatProvider.typing!.user.username} is typing...',
+                  color: AppColor.whiteColor.withAlpha(127),
+                  fontSize: 12.5.sp,
+                ),
+              ],
+            );
+          }
+          final index = chatProvider.typing != null ? i - 1 : i;
+          if (i == chats.length && !chatProvider.isDataOver) {
+            return const Loader();
+          }
           final message = chats.elementAt(index);
           return MessageTile(
             key: ValueKey(message.messageId),
@@ -348,8 +432,8 @@ class MessageBuild extends StatelessWidget {
             userId: userId,
             chats: chats,
             index: index,
-            onMessageDoubleTap: (message) =>
-                _onMessageDoubleTap(context, message.messageId),
+            onMessageDoubleTap:
+                (message) => _onMessageDoubleTap(context, message.messageId),
           );
         },
       ),
@@ -419,9 +503,7 @@ class MessageTile extends StatelessWidget {
           Row(
             children: [
               Expanded(
-                child: Divider(
-                  color: AppColor.whiteColor.withAlpha(153),
-                ),
+                child: Divider(color: AppColor.whiteColor.withAlpha(153)),
               ),
               GapW(3.w),
               CustomText(
@@ -430,30 +512,23 @@ class MessageTile extends StatelessWidget {
               ),
               GapW(3.w),
               Expanded(
-                child: Divider(
-                  color: AppColor.whiteColor.withAlpha(153),
-                ),
+                child: Divider(color: AppColor.whiteColor.withAlpha(153)),
               ),
             ],
           ),
-          GapH(1.8.h),
+          GapH(2.h),
         ],
         Row(
           mainAxisAlignment:
               isUserSend ? MainAxisAlignment.end : MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.end,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             if (!isUserSend) ...[
-              Column(
-                children: [
-                  CircleAvatar(
-                    backgroundImage: CachedNetworkImageProvider(
-                      message.sender.image.toApiImage(),
-                    ),
-                    radius: 4.w,
-                  ),
-                  const GapH(3),
-                ],
+              CircleAvatar(
+                backgroundImage: CachedNetworkImageProvider(
+                  message.sender.image.toApiImage(),
+                ),
+                radius: 4.w,
               ),
               GapW(2.w),
             ],
@@ -463,12 +538,13 @@ class MessageTile extends StatelessWidget {
               onLeftSwipe: () => _onSwipe(context, message),
               onRightSwipe: () => _onSwipe(context, message),
               child: GestureDetector(
-                onDoubleTap: () =>
-                    isUserSend ? onMessageDoubleTap(message) : null,
+                onDoubleTap:
+                    () => isUserSend ? onMessageDoubleTap(message) : null,
                 child: Column(
-                  crossAxisAlignment: isUserSend
-                      ? CrossAxisAlignment.end
-                      : CrossAxisAlignment.start,
+                  crossAxisAlignment:
+                      isUserSend
+                          ? CrossAxisAlignment.end
+                          : CrossAxisAlignment.start,
                   children: [
                     if (message.replyToMessage != null) ...[
                       Container(
@@ -505,9 +581,10 @@ class MessageTile extends StatelessWidget {
                     Container(
                       padding: EdgeInsets.all(3.w),
                       decoration: BoxDecoration(
-                        color: isUserSend
-                            ? AppColor.whiteColor.withAlpha(51)
-                            : AppColor.primaryColor,
+                        color:
+                            isUserSend
+                                ? AppColor.whiteColor.withAlpha(51)
+                                : AppColor.primaryColor,
                         borderRadius: BorderRadius.circular(1.h),
                       ),
                       constraints: BoxConstraints(maxWidth: 70.w),
@@ -520,20 +597,20 @@ class MessageTile extends StatelessWidget {
                         fontSize: 13.sp,
                       ),
                     ),
+                    if (isTimeShow) ...[
+                      GapH(0.8.h),
+                      CustomText(
+                        message.createdAt.toFormatedString('hh:mm'),
+                        fontSize: 9.sp,
+                        color: AppColor.whiteColor.withAlpha(102),
+                      ),
+                    ],
                   ],
                 ),
               ),
             ),
           ],
         ),
-        if (isTimeShow) ...[
-          GapH(0.8.h),
-          CustomText(
-            message.createdAt.toFormatedString('hh:mm'),
-            fontSize: 9.sp,
-            color: AppColor.whiteColor.withAlpha(102),
-          ),
-        ],
       ],
     );
   }
@@ -544,16 +621,12 @@ class MessageTile extends StatelessWidget {
 }
 
 class DeleteMessageDialog extends StatelessWidget {
-  const DeleteMessageDialog({
-    super.key,
-  });
+  const DeleteMessageDialog({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Dialog(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(15.0),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15.0)),
       backgroundColor: AppColor.blackColor,
       child: Padding(
         padding: const EdgeInsets.all(20.0),

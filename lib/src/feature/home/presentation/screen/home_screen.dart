@@ -75,9 +75,7 @@ class GetAllChatView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final chats = context.select<HomeProvider, List<ChatEntity>>(
-      (value) => value.chatList,
-    );
+    final chats = context.watch<HomeProvider>().chatList;
 
     if (chats.isEmpty) {
       return Refresh(onRefresh: () => _onRefresh(context));
@@ -91,7 +89,7 @@ class GetAllChatView extends StatelessWidget {
       child: ListView.builder(
         itemCount: chats.length,
         itemBuilder: (BuildContext context, int index) {
-          final chat = chats[index];
+          final chat = chats.elementAt(index);
           final recieverUserIndex =
               chat.users.indexWhere((element) => element.userId != userId);
           String chatName = chat.isGroupChat
