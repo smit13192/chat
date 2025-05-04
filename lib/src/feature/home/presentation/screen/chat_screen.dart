@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:chat/locator.dart';
@@ -7,11 +8,13 @@ import 'package:chat/src/config/constant/app_color.dart';
 import 'package:chat/src/core/database/storage.dart';
 import 'package:chat/src/core/extension/datetime_extension.dart';
 import 'package:chat/src/core/services/aes_cipher_service.dart';
+import 'package:chat/src/core/services/image_service.dart';
 import 'package:chat/src/core/services/socket_service.dart';
 import 'package:chat/src/core/utils/formz_status.dart';
 import 'package:chat/src/core/utils/post_frame_callback_mixin.dart';
 import 'package:chat/src/core/widgets/custom_button.dart';
 import 'package:chat/src/core/widgets/custom_form_field.dart';
+import 'package:chat/src/core/widgets/custom_image.dart';
 import 'package:chat/src/core/widgets/custom_text.dart';
 import 'package:chat/src/core/widgets/gap.dart';
 import 'package:chat/src/core/widgets/loader.dart';
@@ -19,13 +22,16 @@ import 'package:chat/src/core/widgets/refresh.dart';
 import 'package:chat/src/feature/auth/data/model/login_model.dart';
 import 'package:chat/src/feature/auth/presentation/provider/authentication_provider.dart';
 import 'package:chat/src/feature/home/data/model/chat_model.dart';
+import 'package:chat/src/feature/home/domain/entity/attachment_entity.dart';
 import 'package:chat/src/feature/home/domain/entity/chat_entity.dart';
 import 'package:chat/src/feature/home/domain/entity/message_entity.dart';
 import 'package:chat/src/feature/home/domain/entity/typing_entity.dart';
 import 'package:chat/src/feature/home/presentation/provider/chat_provider.dart';
 import 'package:chat/src/feature/home/presentation/provider/home_provider.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:lazy_load_scrollview/lazy_load_scrollview.dart';
 import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
@@ -66,6 +72,7 @@ class _ChatViewState extends State<ChatView> with PostFrameCallbackMixin {
   TextEditingController messageController = TextEditingController();
   final socketService = SocketService.instance;
   late AuthenticationProvider authProvider;
+  late ChatProvider chatProvider;
   Timer? typingTimer;
 
   @override
@@ -76,7 +83,7 @@ class _ChatViewState extends State<ChatView> with PostFrameCallbackMixin {
 
   @override
   void onPostFrameCallback() {
-    final chatProvider = context.read<ChatProvider>();
+    chatProvider = context.read<ChatProvider>();
     authProvider = context.read<AuthenticationProvider>();
     chatProvider.getChatMessage(widget.chatEntity.chatId, isFromMain: true);
     final chatManageProvider = context.read<HomeProvider>();
@@ -243,18 +250,68 @@ class _ChatViewState extends State<ChatView> with PostFrameCallbackMixin {
                       .select<ChatProvider, MessageEntity?>(
                         (value) => value.replyToMessage,
                       );
+                  final attachment = context.select<ChatProvider, File?>(
+                    (value) => value.attachment,
+                  );
+                  final isLoading = context.select<ChatProvider, bool>(
+                    (value) => value.sendMessageStatus.isLoading,
+                  );
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      if (replyToMessage != null) ...[
+                      if (replyToMessage != null || attachment != null)
                         Divider(color: AppColor.whiteColor.withAlpha(75)),
-                        Padding(
-                          padding: EdgeInsets.only(
-                            left: 20 + 4.w,
-                            right: 20 + 4.w,
-                            bottom: 2.h,
-                            top: 1.h,
+                      if (attachment != null) ...[
+                        GapH(1.h),
+                        SizedBox(
+                          height: 20.h,
+                          width: double.infinity,
+                          child: Stack(
+                            children: [
+                              Positioned.fill(
+                                child: Container(
+                                  margin: EdgeInsets.symmetric(horizontal: 4.w),
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(1.h),
+                                  ),
+                                  clipBehavior: Clip.hardEdge,
+                                  child: Image.file(
+                                    attachment,
+                                    fit: BoxFit.cover,
+                                  ),
+                                ),
+                              ),
+                              Positioned(
+                                right: 5.w,
+                                top: 1.w,
+                                child: Container(
+                                  padding: const EdgeInsets.all(5),
+                                  decoration: BoxDecoration(
+                                    color: AppColor.whiteColor.withAlpha(51),
+                                    borderRadius: BorderRadius.circular(50),
+                                  ),
+                                  child: GestureDetector(
+                                    onTap: () {
+                                      context.read<ChatProvider>().attachment =
+                                          null;
+                                    },
+                                    child: Icon(
+                                      Icons.close,
+                                      size: 16.sp,
+                                      color: AppColor.whiteColor.withAlpha(127),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
+                        ),
+                        GapH(1.h),
+                      ],
+                      if (replyToMessage != null) ...[
+                        GapH(1.h),
+                        Padding(
+                          padding: EdgeInsets.only(left: 4.w, right: 4.w),
                           child: Row(
                             children: [
                               Expanded(
@@ -267,16 +324,32 @@ class _ChatViewState extends State<ChatView> with PostFrameCallbackMixin {
                                       fontSize: 11.sp,
                                     ),
                                     const GapH(3),
-                                    CustomText(
-                                      AESCipherService.decrypt(
-                                        replyToMessage.message,
-                                        replyToMessage.messageIv,
+                                    if (replyToMessage.message.isNotEmpty) ...[
+                                      CustomText(
+                                        AESCipherService.decrypt(
+                                          replyToMessage.message,
+                                          replyToMessage.messageIv,
+                                        ),
+                                        color: AppColor.whiteColor.withAlpha(
+                                          75,
+                                        ),
+                                        fontSize: 10.sp,
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
                                       ),
-                                      color: AppColor.whiteColor.withAlpha(75),
-                                      fontSize: 10.sp,
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
+                                    ] else if (replyToMessage.attachment !=
+                                        null) ...[
+                                      CustomText(
+                                        'Sent a photo',
+                                        color: AppColor.whiteColor.withAlpha(
+                                          75,
+                                        ),
+                                        fontSize: 10.sp,
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                      const GapH(3),
+                                    ],
                                   ],
                                 ),
                               ),
@@ -299,6 +372,7 @@ class _ChatViewState extends State<ChatView> with PostFrameCallbackMixin {
                             ],
                           ),
                         ),
+                        GapH(2.h),
                       ],
                       Padding(
                         padding: EdgeInsets.only(left: 4.w, right: 4.w),
@@ -316,6 +390,19 @@ class _ChatViewState extends State<ChatView> with PostFrameCallbackMixin {
                               ),
                           onChanged: (value) => _onTextFieldChanged(),
                           suffixIconConstraints: const BoxConstraints(),
+                          prefixIcon: GestureDetector(
+                            onTap: () => _onImageTap(context),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 20,
+                              ),
+                              child: Icon(
+                                Icons.image_outlined,
+                                color: AppColor.whiteColor,
+                                size: 15.sp,
+                              ),
+                            ),
+                          ),
                           suffixIcon: GestureDetector(
                             onTap:
                                 () => _onFieldSubmit(
@@ -337,11 +424,16 @@ class _ChatViewState extends State<ChatView> with PostFrameCallbackMixin {
                                 color: AppColor.primaryColor,
                                 borderRadius: BorderRadius.circular(7),
                               ),
-                              child: Icon(
-                                Icons.send,
-                                color: AppColor.whiteColor,
-                                size: 15.sp,
-                              ),
+                              child:
+                                  isLoading
+                                      ? CupertinoActivityIndicator(
+                                        color: AppColor.whiteColor,
+                                      )
+                                      : Icon(
+                                        Icons.send,
+                                        color: AppColor.whiteColor,
+                                        size: 15.sp,
+                                      ),
                             ),
                           ),
                         ),
@@ -358,7 +450,7 @@ class _ChatViewState extends State<ChatView> with PostFrameCallbackMixin {
   }
 
   void _onFieldSubmit(BuildContext context, String message, String chatId) {
-    if (message.trim().isEmpty) return;
+    if (message.trim().isEmpty && chatProvider.attachment == null) return;
     context.read<ChatProvider>().sendMessage(
       chatId: chatId,
       message: message.trim(),
@@ -379,6 +471,15 @@ class _ChatViewState extends State<ChatView> with PostFrameCallbackMixin {
       socketService.emit('stop-typing', {'user': user, 'chat': chat});
       typingTimer = null;
     });
+  }
+
+  Future<void> _onImageTap(BuildContext context) async {
+    final file = await ImageService.pickImage(
+      context: context,
+      source: ImageSource.gallery,
+    );
+    if (file == null) return;
+    chatProvider.attachment = file;
   }
 }
 
@@ -564,39 +665,54 @@ class MessageTile extends StatelessWidget {
                               color: AppColor.whiteColor.withAlpha(75),
                               fontSize: 10.5.sp,
                             ),
-                            const GapH(3),
-                            CustomText(
-                              AESCipherService.decrypt(
-                                message.replyToMessage!.message,
-                                message.replyToMessage!.messageIv,
+                            if (message.replyToMessage!.attachment != null) ...[
+                              const GapH(5),
+                              buildImage(
+                                attachment: message.replyToMessage!.attachment!,
+                                subtractWidth: 4.w,
                               ),
-                              color: AppColor.whiteColor.withAlpha(127),
-                              fontSize: 10.sp,
-                            ),
+                            ],
+                            if (message.replyToMessage!.message.isNotEmpty) ...[
+                              const GapH(5),
+                              CustomText(
+                                AESCipherService.decrypt(
+                                  message.replyToMessage!.message,
+                                  message.replyToMessage!.messageIv,
+                                ),
+                                color: AppColor.whiteColor.withAlpha(127),
+                                fontSize: 10.sp,
+                              ),
+                            ],
                           ],
                         ),
                       ),
                       const GapH(5),
                     ],
-                    Container(
-                      padding: EdgeInsets.all(3.w),
-                      decoration: BoxDecoration(
-                        color:
-                            isUserSend
-                                ? AppColor.whiteColor.withAlpha(51)
-                                : AppColor.primaryColor,
-                        borderRadius: BorderRadius.circular(1.h),
-                      ),
-                      constraints: BoxConstraints(maxWidth: 70.w),
-                      child: CustomText(
-                        AESCipherService.decrypt(
-                          message.message,
-                          message.messageIv,
+                    if (message.attachment != null) ...[
+                      buildImage(attachment: message.attachment!),
+                    ],
+                    if (message.message.isNotEmpty) ...[
+                      const GapH(5),
+                      Container(
+                        padding: EdgeInsets.all(3.w),
+                        decoration: BoxDecoration(
+                          color:
+                              isUserSend
+                                  ? AppColor.whiteColor.withAlpha(51)
+                                  : AppColor.primaryColor,
+                          borderRadius: BorderRadius.circular(1.h),
                         ),
-                        color: AppColor.whiteColor,
-                        fontSize: 13.sp,
+                        constraints: BoxConstraints(maxWidth: 70.w),
+                        child: CustomText(
+                          AESCipherService.decrypt(
+                            message.message,
+                            message.messageIv,
+                          ),
+                          color: AppColor.whiteColor,
+                          fontSize: 13.sp,
+                        ),
                       ),
-                    ),
+                    ],
                     if (isTimeShow) ...[
                       GapH(0.8.h),
                       CustomText(
@@ -612,6 +728,27 @@ class MessageTile extends StatelessWidget {
           ],
         ),
       ],
+    );
+  }
+
+  Widget buildImage({
+    required AttachmentEntity attachment,
+    double subtractWidth = 0,
+  }) {
+    double width = 70.w - subtractWidth;
+    double? height;
+
+    if (attachment.height != null && attachment.width != null) {
+      double aspectRatio = attachment.height! / attachment.width!;
+      height = width * aspectRatio;
+    }
+
+    return Container(
+      width: width,
+      height: height,
+      decoration: BoxDecoration(borderRadius: BorderRadius.circular(1.h)),
+      clipBehavior: Clip.hardEdge,
+      child: CustomImage(attachment.url.toApiImage()),
     );
   }
 

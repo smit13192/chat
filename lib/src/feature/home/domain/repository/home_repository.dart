@@ -31,6 +31,9 @@ abstract interface class HomeRepository {
     required String message,
     required String messageIv,
     required String? replyToMessage,
+    required String? attachment,
+    required double? height,
+    required double? width,
   });
 
   Future<DataState<MessageEntity>> deleteMessage({

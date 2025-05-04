@@ -1,5 +1,8 @@
+import 'dart:io';
+
 import 'package:chat/src/core/services/aes_cipher_service.dart';
 import 'package:chat/src/core/utils/formz_status.dart';
+import 'package:chat/src/core/utils/image_size.dart';
 import 'package:chat/src/feature/home/domain/entity/message_entity.dart';
 import 'package:chat/src/feature/home/domain/entity/typing_entity.dart';
 import 'package:chat/src/feature/home/domain/usecase/delete_message_usecase.dart';
@@ -40,10 +43,17 @@ class ChatProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  MessageEntity? _replayToMessage;
-  MessageEntity? get replyToMessage => _replayToMessage;
+  MessageEntity? _replyToMessage;
+  MessageEntity? get replyToMessage => _replyToMessage;
   set replyToMessage(MessageEntity? message) {
-    _replayToMessage = message;
+    _replyToMessage = message;
+    notifyListeners();
+  }
+
+  File? _attachment;
+  File? get attachment => _attachment;
+  set attachment(File? file) {
+    _attachment = file;
     notifyListeners();
   }
 
@@ -72,21 +82,44 @@ class ChatProvider extends ChangeNotifier {
     status = FormzStatus.success;
   }
 
+  FormzStatus _sendMessageStatus = FormzStatus.pure;
+  FormzStatus get sendMessageStatus => _sendMessageStatus;
+  set sendMessageStatus(FormzStatus status) {
+    _sendMessageStatus = status;
+    notifyListeners();
+  }
+
   Future<void> sendMessage({
     required String chatId,
     required String message,
   }) async {
-    final encryptedData = AESCipherService.encrypt(message);
+    sendMessageStatus = FormzStatus.loading;
+    EncryptedData? encryptedData;
+    Size? size;
+    if (message.isNotEmpty) {
+      encryptedData = AESCipherService.encrypt(message);
+    }
+    if (_attachment != null) {
+      size = await ImageSize.getSize(_attachment!);
+    }
     final result = await sendMessageUseCase(
       SendMessageParams(
         chatId: chatId,
-        message: encryptedData.encryptedData,
-        messageIv: encryptedData.iv,
-        replyToMessage: _replayToMessage?.messageId,
+        message: encryptedData?.encryptedData ?? '',
+        messageIv: encryptedData?.iv ?? '',
+        replyToMessage: _replyToMessage?.messageId,
+        attachment: _attachment?.path,
+        height: size?.height,
+        width: size?.width,
       ),
     );
-    if (result.isFailure) return;
-    replyToMessage = null;
+    if (result.isFailure) {
+      sendMessageStatus = FormzStatus.pure;
+      return;
+    }
+    _replyToMessage = null;
+    _attachment = null;
+    sendMessageStatus = FormzStatus.pure;
   }
 
   Future<void> deleteMessage({required String messageId}) async {

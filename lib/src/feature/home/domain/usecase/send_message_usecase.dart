@@ -1,4 +1,3 @@
-// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:chat/src/api/state/data_state.dart';
 import 'package:chat/src/core/usecase/usecase.dart';
 import 'package:chat/src/feature/home/domain/entity/message_entity.dart';
@@ -8,19 +7,19 @@ class SendMessageUseCase
     extends UseCase<SendMessageParams, DataState<MessageEntity>> {
   final HomeRepository _homeRepository;
 
-  SendMessageUseCase({
-    required HomeRepository homeRepository,
-  }) : _homeRepository = homeRepository;
+  SendMessageUseCase({required HomeRepository homeRepository})
+    : _homeRepository = homeRepository;
 
   @override
-  Future<DataState<MessageEntity>> call(
-    SendMessageParams params,
-  ) async {
+  Future<DataState<MessageEntity>> call(SendMessageParams params) async {
     return _homeRepository.sendMessage(
       chatId: params.chatId,
       message: params.message,
       messageIv: params.messageIv,
       replyToMessage: params.replyToMessage,
+      attachment: params.attachment,
+      height: params.height,
+      width: params.width,
     );
   }
 }
@@ -30,11 +29,17 @@ class SendMessageParams {
   String message;
   String messageIv;
   String? replyToMessage;
+  String? attachment;
+  double? height;
+  double? width;
 
   SendMessageParams({
     required this.chatId,
     required this.message,
     required this.messageIv,
     this.replyToMessage,
+    this.attachment,
+    this.height,
+    this.width,
   });
 }

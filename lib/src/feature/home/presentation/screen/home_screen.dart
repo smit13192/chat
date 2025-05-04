@@ -90,16 +90,19 @@ class GetAllChatView extends StatelessWidget {
         itemCount: chats.length,
         itemBuilder: (BuildContext context, int index) {
           final chat = chats.elementAt(index);
-          final recieverUserIndex =
-              chat.users.indexWhere((element) => element.userId != userId);
-          String chatName = chat.isGroupChat
-              ? chat.chatName!
-              : recieverUserIndex == -1
+          final recieverUserIndex = chat.users.indexWhere(
+            (element) => element.userId != userId,
+          );
+          String chatName =
+              chat.isGroupChat
+                  ? chat.chatName!
+                  : recieverUserIndex == -1
                   ? 'No User Found'
                   : chat.users[recieverUserIndex].username;
-          String image = chat.isGroupChat
-              ? chat.groupImage
-              : recieverUserIndex == -1
+          String image =
+              chat.isGroupChat
+                  ? chat.groupImage
+                  : recieverUserIndex == -1
                   ? chat.groupImage
                   : chat.users[recieverUserIndex].image;
           return ListTile(
@@ -115,10 +118,12 @@ class GetAllChatView extends StatelessWidget {
             ),
             subtitle: CustomText(
               chat.lastMessage != null
-                  ? AESCipherService.decrypt(
-                      chat.lastMessage!.message,
-                      chat.lastMessage!.messageIv,
-                    )
+                  ? chat.lastMessage!.message.isNotEmpty
+                      ? AESCipherService.decrypt(
+                        chat.lastMessage!.message,
+                        chat.lastMessage!.messageIv,
+                      )
+                      : 'Sent a photo'
                   : 'Hello! Feel free to start the conversation.',
               maxLines: 1,
               overflow: TextOverflow.ellipsis,

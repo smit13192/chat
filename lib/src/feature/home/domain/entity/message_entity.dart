@@ -1,4 +1,5 @@
 import 'package:chat/src/feature/auth/domain/entity/login_entity.dart';
+import 'package:chat/src/feature/home/domain/entity/attachment_entity.dart';
 import 'package:equatable/equatable.dart';
 
 class MessageEntity extends Equatable {
@@ -7,6 +8,7 @@ class MessageEntity extends Equatable {
   final UserEntity sender;
   final String chat;
   final String messageIv;
+  final AttachmentEntity? attachment;
   final MessageEntity? replyToMessage;
   final DateTime createdAt;
   final DateTime updatedAt;
@@ -17,6 +19,7 @@ class MessageEntity extends Equatable {
     required this.sender,
     required this.chat,
     required this.messageIv,
+    required this.attachment,
     this.replyToMessage,
     required this.createdAt,
     required this.updatedAt,

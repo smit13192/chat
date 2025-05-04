@@ -11,9 +11,8 @@ import 'package:chat/src/feature/home/domain/repository/home_repository.dart';
 class HomeRepositoryImpl implements HomeRepository {
   final ApiHomeDataSource _apiHomeDataSource;
 
-  HomeRepositoryImpl({
-    required ApiHomeDataSource apiHomeDataSource,
-  }) : _apiHomeDataSource = apiHomeDataSource;
+  HomeRepositoryImpl({required ApiHomeDataSource apiHomeDataSource})
+    : _apiHomeDataSource = apiHomeDataSource;
 
   @override
   Future<DataState<List<UserEntity>>> getAllUser({
@@ -21,8 +20,10 @@ class HomeRepositoryImpl implements HomeRepository {
     required int limit,
   }) async {
     try {
-      final response =
-          await _apiHomeDataSource.getAllUser(skip: skip, limit: limit);
+      final response = await _apiHomeDataSource.getAllUser(
+        skip: skip,
+        limit: limit,
+      );
       return DataState.success(response);
     } on ApiException catch (e) {
       return DataState.failure(e.failure);
@@ -34,8 +35,9 @@ class HomeRepositoryImpl implements HomeRepository {
   @override
   Future<DataState<ChatEntity>> accessChat({required String recieverId}) async {
     try {
-      final response =
-          await _apiHomeDataSource.accessChat(recieverId: recieverId);
+      final response = await _apiHomeDataSource.accessChat(
+        recieverId: recieverId,
+      );
       return DataState.success(response);
     } on ApiException catch (e) {
       return DataState.failure(e.failure);
@@ -86,6 +88,9 @@ class HomeRepositoryImpl implements HomeRepository {
     required String message,
     required String messageIv,
     required String? replyToMessage,
+    required String? attachment,
+    required double? height,
+    required double? width,
   }) async {
     try {
       final response = await _apiHomeDataSource.sendMessage(
@@ -93,6 +98,9 @@ class HomeRepositoryImpl implements HomeRepository {
         message: message,
         messageIv: messageIv,
         replyToMessage: replyToMessage,
+        attachment: attachment,
+        height: height,
+        width: width,
       );
       return DataState.success(response);
     } on ApiException catch (e) {

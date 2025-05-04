@@ -39,6 +39,7 @@ dependencies:
   flutter_local_notifications: ^18.0.1
   http: ^1.3.0
   path_provider: ^2.1.5
+  image: ^4.5.4
 
 flutter_assets:
   assets_path: assets/
