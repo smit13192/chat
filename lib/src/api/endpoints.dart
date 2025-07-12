@@ -5,7 +5,7 @@ extension ApiImageExtension on String {
 }
 
 class Endpoints {
-  static const String baseUrl = 'http://192.168.1.73:8001';
+  static const String baseUrl = 'http://192.168.1.72:8001';
   static const String login = '$baseUrl/login';
   static const String register = '$baseUrl/register';
   static const String profile = '$baseUrl/profile';
