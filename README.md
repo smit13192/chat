@@ -238,4 +238,4 @@ If you have any questions or need help with setup, please open an issue or conta
 
 ---
 
-## Built with ❤️ using Flutter**
+## Built with ❤️ using Flutter
